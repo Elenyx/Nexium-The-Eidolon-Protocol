@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Nexium RPG: The Eidolon Protocol - A sophisticated Discord RPG bot",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "node simplified-build.js",

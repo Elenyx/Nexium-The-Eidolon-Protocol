@@ -1,6 +1,5 @@
 import { Client, GatewayIntentBits, Collection, Events, REST, Routes, ActivityType } from 'discord.js';
 import { readdirSync } from 'fs';
-import { pathToFileURL } from 'url';
 import path from 'path';
 import dotenv from 'dotenv';
 
@@ -59,11 +58,13 @@ class NexiumBot {
     console.log(`Found ${commandFiles.length} command files:`, commandFiles);
 
     for (const file of commandFiles) {
-      const filePath = path.join(commandsPath, file);
-      const fileUrl = pathToFileURL(filePath).href;
-      
       try {
-        const commandModule = await import(fileUrl);
+        // Use relative import path instead of pathToFileURL
+        const commandPath = isProduction 
+          ? `./commands/${file}`
+          : `./commands/${file}`;
+        
+        const commandModule = await import(commandPath);
         const command = commandModule.default;
         
         if ('data' in command && 'execute' in command) {

@@ -2,9 +2,13 @@
  * This is a simplified build script that transforms TypeScript to JavaScript
  * without relying on complex regex patterns that might miss edge cases
  */
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Log environment info
 console.log('Current directory:', process.cwd());
