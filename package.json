@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "discraft": "^1.7.8",
+    "dotenv": "^17.2.2",
+    "pg": "^8.16.3",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.10"
+  }
+}
