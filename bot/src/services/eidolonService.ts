@@ -1,5 +1,5 @@
-import pool from '../database/connection.js';
-import { Eidolon, UserEidolon } from '../types/index.js';
+import pool from '../database/connection';
+import { Eidolon, UserEidolon } from '../types/index';
 
 export class EidolonService {
   static async getAllEidolons(): Promise<Eidolon[]> {

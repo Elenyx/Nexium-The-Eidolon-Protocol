@@ -1,8 +1,8 @@
 import { 
   ContainerBuilder, 
   TextDisplayBuilder
-} from 'discord.js';
-import { User, UserEidolon, Eidolon } from '../types/index.js';
+} from 'discord;
+import { User, UserEidolon, Eidolon } from '../types/index';
 
 export class ComponentBuilder {
   static createProfileComponents(user: User): any[] {

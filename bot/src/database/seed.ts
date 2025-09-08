@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import pool from './connection.js';
+import pool from './connection;
 
 async function seedDatabase() {
   try {
@@ -33,3 +33,4 @@ async function seedDatabase() {
 
 // Run the seed function
 seedDatabase();
+

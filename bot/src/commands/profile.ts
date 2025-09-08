@@ -1,5 +1,5 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags, TextDisplayBuilder, SeparatorBuilder, SeparatorSpacingSize, ContainerBuilder } from 'discord.js';
-import { UserService } from '../services/userService.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags, TextDisplayBuilder, SeparatorBuilder, SeparatorSpacingSize, ContainerBuilder } from 'discord;
+import { UserService } from '../services/userService';
 
 export default {
   data: new SlashCommandBuilder()

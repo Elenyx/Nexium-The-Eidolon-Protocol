@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags } from 'discord.js';
-import pool from '../database/connection.js';
+import pool from '../database/connection';
 
 export default {
   data: new SlashCommandBuilder()

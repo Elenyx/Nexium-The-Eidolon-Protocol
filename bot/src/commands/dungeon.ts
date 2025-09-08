@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import { UserService } from '../services/userService.js';
-import pool from '../database/connection.js';
+import { UserService } from '../services/userService';
+import pool from '../database/connection';
 
 // Store active dungeon runs
 const activeDungeons = new Map<string, { dungeonId: number; stage: number; hp: number; maxHp: number }>();

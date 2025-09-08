@@ -1,5 +1,5 @@
-import pool from '../database/connection.js';
-import { Encounter, CombatResult } from '../types/index.js';
+import pool from '../database/connection';
+import { Encounter, CombatResult } from '../types/index';
 
 export class CombatService {
   static async getRandomEncounter(difficulty?: number): Promise<Encounter> {
