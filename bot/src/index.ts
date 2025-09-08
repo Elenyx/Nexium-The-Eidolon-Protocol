@@ -2,6 +2,7 @@ import { Client, GatewayIntentBits, Collection, Events, REST, Routes, ActivityTy
 import { readdirSync } from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
+import { initDatabase } from './database/init.js';
 
 dotenv.config();
 
@@ -149,7 +150,9 @@ class NexiumBot {
 
   async start(): Promise<void> {
     try {
-      await this.loadCommands();
+  // Ensure DB schema is created/updated before loading commands that may touch the DB
+  await initDatabase();
+  await this.loadCommands();
       await this.deployCommands();
       this.setupEventHandlers();
       await this.client.login(process.env.DISCORD_TOKEN);

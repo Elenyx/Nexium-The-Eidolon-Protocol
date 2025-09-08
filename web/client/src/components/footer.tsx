@@ -107,7 +107,7 @@ export function Footer() {
 
         <div className="border-t border-border mt-12 pt-8 text-center">
           <p className="text-muted-foreground">
-            © 2024 Nexium Bot. All rights reserved. Built with Discord.js v14.
+            © 2025 Nexium-RPG. All rights reserved.
           </p>
         </div>
       </div>

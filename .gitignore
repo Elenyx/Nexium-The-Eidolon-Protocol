@@ -121,3 +121,7 @@ desktop.ini
 # Local development files
 .local
 .dev
+
+# Test artifacts
+/test-results/
+/bot/test/

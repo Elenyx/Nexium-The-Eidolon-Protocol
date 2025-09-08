@@ -1,6 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import pool from './connection.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function seedDatabase() {
   try {
@@ -31,7 +34,11 @@ async function seedDatabase() {
   }
 }
 
-// Run the seed function
-seedDatabase();
+// If executed directly, run the seed function
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
+  seedDatabase()
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1));
+}
 
 
