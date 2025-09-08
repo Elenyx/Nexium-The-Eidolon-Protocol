@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags } from 'discord;
+import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags } from 'discord.js';
 import { UserService } from '../services/userService';
 import { CombatService } from '../services/combatService';
 import { ComponentBuilder } from '../utils/embeds';

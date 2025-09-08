@@ -1,7 +1,7 @@
 import { 
   ContainerBuilder, 
   TextDisplayBuilder
-} from 'discord;
+} from 'discord.js';
 import { User, UserEidolon, Eidolon } from '../types/index';
 
 export class ComponentBuilder {
