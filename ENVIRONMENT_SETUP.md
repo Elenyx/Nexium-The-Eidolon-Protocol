@@ -72,18 +72,20 @@ In Discord Developer Portal → OAuth2 → General:
 
 ## Database Setup
 
-### Option 1: Neon (Recommended)
+### Option 1: Railway (Recommended for Full-Stack Apps)
+
+1. Go to [Railway](https://railway.app/)
+2. Create a new project
+3. Add a PostgreSQL database
+4. Copy the connection string from the database settings
+5. Use it as `DATABASE_URL`
+
+### Option 2: Neon
 
 1. Go to [Neon Console](https://console.neon.tech/)
 2. Create a new project
 3. Copy the connection string
 4. Use it as `DATABASE_URL`
-
-### Option 2: Railway
-
-1. Create a PostgreSQL database in Railway
-2. Copy the connection string
-3. Use it as `DATABASE_URL`
 
 ### Option 3: Supabase
 
