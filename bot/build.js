@@ -46,8 +46,8 @@ function copyAndTransform(src, dest) {
       content = content
         // Remove import type statements
         .replace(/import\s+type\s+.*?from\s+['"].*?['"]/g, '')
-        // Remove interface and type declarations
-        .replace(/^(export\s+)?(interface|type)\s+[\s\S]*?(?=(\n\s*\n|\n\s*export|\n\s*import|\n\s*\/\/|\n\s*\/\*|\n\s*function|\n\s*class|$))/gm, '')
+        // Remove interface and type declarations completely
+        .replace(/^(export\s+)?(interface|type)\s+[\w<>,\s]+\{[\s\S]*?\n\}/gm, '')
         // Fix imports (keep .js extensions for ES modules)
         .replace(/from\s+['"](\.\.?\/[^"']+)(?!\.js)['"]/g, 'from "$1.js"')
         // Remove type parameters from generic functions/classes
@@ -57,7 +57,9 @@ function copyAndTransform(src, dest) {
         // Remove function return types
         .replace(/\):\s*([a-zA-Z_$<>[\].]+|\{[^}]*\})\s*(\{|=>)/g, ') $2')
         // Remove remaining parameter types (multi-line params)
-        .replace(/([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:\s*[a-zA-Z_$][\w\s|&<>.[\]]*?(,|\))/g, '$1$2');
+        .replace(/([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:\s*[a-zA-Z_$][\w\s|&<>.[\]]*?(,|\))/g, '$1$2')
+        // Remove class property type declarations
+        .replace(/(\s+)(public|private|protected)?\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:\s*[a-zA-Z_$][\w\s|&<>.[\]]*?;/g, '');
       
       // Write the JavaScript file
       fs.writeFileSync(destJsPath, content);
