@@ -5,9 +5,13 @@ const { execSync } = require('child_process');
 // First, run TypeScript compilation
 try {
   console.log('Running TypeScript compilation...');
+  console.log('Current directory:', process.cwd());
+  console.log('Node version:', process.version);
+  console.log('Environment:', process.env.NODE_ENV);
   execSync('tsc', { stdio: 'inherit' });
 } catch (error) {
   console.error('TypeScript compilation failed, but continuing with manual JS file creation');
+  console.error('Error details:', error.message);
 }
 
 // Check if dist directory exists and clean it before starting
@@ -64,6 +68,8 @@ function copyAndTransform(src, dest) {
 
 // Start the transformation from src to dist
 const srcDir = path.join(__dirname, 'src');
+console.log('Source directory:', srcDir);
+console.log('Destination directory:', destDir);
 
 console.log(`Converting TypeScript files from ${srcDir} to JavaScript files in ${destDir}`);
 copyAndTransform(srcDir, destDir);
