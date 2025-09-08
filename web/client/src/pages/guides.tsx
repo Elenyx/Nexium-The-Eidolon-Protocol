@@ -55,7 +55,7 @@ Happy adventuring!`
     category: "Advanced",
     thumbnail: "/api/placeholder/400/250",
     readTime: "8 min read",
-    author: "Expert Player",
+    author: "Nexium Team",
     publishedAt: "2025-01-20",
     content: `# Mastering Character Collection
 
@@ -103,7 +103,7 @@ Focus on leveling your strongest characters first.`
     category: "Combat",
     thumbnail: "/api/placeholder/400/250",
     readTime: "10 min read",
-    author: "Battle Master",
+    author: "Nexium Team",
     publishedAt: "2025-01-25",
     content: `# Battle System Deep Dive
 
@@ -147,7 +147,7 @@ Fire > Wind > Water > Fire (cyclic)
     category: "Community",
     thumbnail: "/api/placeholder/400/250",
     readTime: "7 min read",
-    author: "Guild Leader",
+    author: "Nexium Team",
     publishedAt: "2025-02-01",
     content: `# Guild Leadership Guide
 

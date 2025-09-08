@@ -54,7 +54,7 @@ Happy adventuring!`
     category: "Advanced",
     thumbnail: "/api/placeholder/400/250",
     readTime: "8 min read",
-    author: "Expert Player",
+    author: "Nexium Team",
     publishedAt: "2025-01-20",
     content: `# Mastering Character Collection
 
@@ -102,7 +102,7 @@ Focus on leveling your strongest characters first.`
     category: "Combat",
     thumbnail: "/api/placeholder/400/250",
     readTime: "10 min read",
-    author: "Battle Master",
+    author: "Nexium Team",
     publishedAt: "2025-01-25",
     content: `# Battle System Deep Dive
 
@@ -146,7 +146,7 @@ Fire > Wind > Water > Fire (cyclic)
     category: "Community",
     thumbnail: "/api/placeholder/400/250",
     readTime: "7 min read",
-    author: "Guild Leader",
+    author: "Nexium Team",
     publishedAt: "2025-02-01",
     content: `# Guild Leadership Guide
 
@@ -258,10 +258,10 @@ export default function GuideDetail() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Main Content */}
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-3 space-y-6">
           <article className="prose prose-lg max-w-none dark:prose-invert">
             {/* Header */}
-            <div className="mb-8">
+            <div className="bg-card border rounded-lg p-8 shadow-sm mb-8">
               <div className="flex items-center gap-2 mb-4">
                 <Badge variant="secondary">{guide.category}</Badge>
                 <div className="flex items-center text-sm text-muted-foreground">
@@ -290,22 +290,24 @@ export default function GuideDetail() {
             <Separator className="mb-8" />
 
             {/* Content */}
-            <div
-              className="prose-headings:scroll-mt-20 prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-code:text-primary prose-a:text-primary hover:prose-a:text-primary/80"
-              dangerouslySetInnerHTML={{
-                __html: guide.content
-                  .replace(/^# (.+)$/gm, '<h1 id="$1">$1</h1>')
-                  .replace(/^## (.+)$/gm, '<h2 id="$1">$1</h2>')
-                  .replace(/^### (.+)$/gm, '<h3 id="$1">$1</h3>')
-                  .replace(/\n\n/g, '</p><p>')
-                  .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-                  .replace(/`(.+?)`/g, '<code>$1</code>')
-                  .replace(/^- (.+)$/gm, '<li>$1</li>')
-                  .replace(/<li>.*?<\/li>/g, (match: string) => `<ul>${match}</ul>`)
-                  .replace(/^(\d+)\. (.+)$/gm, '<li>$1. $2</li>')
-                  .replace(/<li>.*?<\/li>/g, (match: string) => `<ol>${match}</ol>`)
-              }}
-            />
+            <div className="bg-card border rounded-lg p-8 shadow-sm">
+              <div
+                className="prose prose-lg max-w-none dark:prose-invert prose-headings:scroll-mt-20 prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-code:text-primary prose-a:text-primary hover:prose-a:text-primary/80 prose-p:leading-relaxed prose-headings:mb-4 prose-p:mb-4 prose-ul:mb-4 prose-ol:mb-4 prose-li:mb-2"
+                dangerouslySetInnerHTML={{
+                  __html: guide.content
+                    .replace(/^# (.+)$/gm, '<h1 id="$1">$1</h1>')
+                    .replace(/^## (.+)$/gm, '<h2 id="$1">$1</h2>')
+                    .replace(/^### (.+)$/gm, '<h3 id="$1">$1</h3>')
+                    .replace(/\n\n/g, '</p><p>')
+                    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/`(.+?)`/g, '<code>$1</code>')
+                    .replace(/^- (.+)$/gm, '<li>$1</li>')
+                    .replace(/<li>.*?<\/li>/g, (match: string) => `<ul>${match}</ul>`)
+                    .replace(/^(\d+)\. (.+)$/gm, '<li>$1. $2</li>')
+                    .replace(/<li>.*?<\/li>/g, (match: string) => `<ol>${match}</ol>`)
+                }}
+              />
+            </div>
           </article>
         </div>
 
@@ -321,11 +323,18 @@ export default function GuideDetail() {
                   <a
                     key={index}
                     href={`#${item.id}`}
-                    className={`block text-sm hover:text-primary transition-colors ${
+                    className={`block text-sm hover:text-primary transition-colors duration-200 py-1 px-2 rounded hover:bg-accent/50 ${
                       item.level === 1 ? 'font-semibold' :
                       item.level === 2 ? 'ml-4' :
                       item.level === 3 ? 'ml-8' : ''
                     }`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const element = document.getElementById(item.id);
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
                   >
                     {item.text}
                   </a>
