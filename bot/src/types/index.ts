@@ -70,3 +70,4 @@ export interface CombatResult {
   message: string;
   rewards?: Record<string, any>;
 }
+

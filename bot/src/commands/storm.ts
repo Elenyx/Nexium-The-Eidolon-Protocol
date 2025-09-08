@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags } from 'discord.js';
-import { UserService } from '../services/userService';
-import pool from '../database/connection';
+import { UserService } from '../services/userService.js';
+import pool from '../database/connection.js';
 
 // Global storm state
 let currentStorm: any = null;
@@ -328,3 +328,4 @@ export default {
 };
 
 export { currentStorm, stormContributions };
+

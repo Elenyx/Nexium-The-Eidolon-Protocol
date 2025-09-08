@@ -2,7 +2,7 @@ import {
   ContainerBuilder, 
   TextDisplayBuilder
 } from 'discord.js';
-import { User, UserEidolon, Eidolon } from '../types/index';
+import { User, UserEidolon, Eidolon } from '../types/index.js';
 
 export class ComponentBuilder {
   static createProfileComponents(user: User): any[] {
@@ -137,3 +137,4 @@ export class ComponentBuilder {
     ];
   }
 }
+

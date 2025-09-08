@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags } from 'discord.js';
-import { UserService } from '../services/userService';
-import { CombatService } from '../services/combatService';
-import { ComponentBuilder } from '../utils/embeds';
+import { UserService } from '../services/userService.js';
+import { CombatService } from '../services/combatService.js';
+import { ComponentBuilder } from '../utils/embeds.js';
 
 // Store active encounters per user
 const activeEncounters = new Map<string, number>();
@@ -53,3 +53,4 @@ export default {
 };
 
 export { activeEncounters };
+

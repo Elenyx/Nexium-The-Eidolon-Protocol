@@ -1,5 +1,5 @@
-import pool from '../database/connection';
-import { Encounter, CombatResult } from '../types/index';
+import pool from '../database/connection.js';
+import { Encounter, CombatResult } from '../types/index.js';
 
 export class CombatService {
   static async getRandomEncounter(difficulty?: number): Promise<Encounter> {
@@ -114,3 +114,4 @@ export class CombatService {
            (normalizedUser.length > 3 && normalizedCorrect.includes(normalizedUser));
   }
 }
+

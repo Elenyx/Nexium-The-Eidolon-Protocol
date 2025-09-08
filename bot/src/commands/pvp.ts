@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import { UserService } from '../services/userService';
-import { EidolonService } from '../services/eidolonService';
+import { UserService } from '../services/userService.js';
+import { EidolonService } from '../services/eidolonService.js';
 
 // Store active PvP challenges
 const pvpChallenges = new Map<string, { challengerId: string; targetId: string; status: string; timestamp: number }>();
@@ -283,3 +283,4 @@ export default {
 };
 
 export { pvpChallenges, activeDuels };
+

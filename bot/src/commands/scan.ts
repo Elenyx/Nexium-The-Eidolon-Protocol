@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags } from 'discord.js';
-import { UserService } from '../services/userService';
-import { CombatService } from '../services/combatService';
-import { activeEncounters } from './encounter';
+import { UserService } from '../services/userService.js';
+import { CombatService } from '../services/combatService.js';
+import { activeEncounters } from './encounter.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -74,3 +74,4 @@ export default {
     }
   }
 };
+

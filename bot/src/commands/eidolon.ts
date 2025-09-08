@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags } from 'discord.js';
-import { UserService } from '../services/userService';
-import { EidolonService } from '../services/eidolonService';
-import { ComponentBuilder } from '../utils/embeds';
+import { UserService } from '../services/userService.js';
+import { EidolonService } from '../services/eidolonService.js';
+import { ComponentBuilder } from '../utils/embeds.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -133,3 +133,4 @@ export default {
     }
   }
 };
+

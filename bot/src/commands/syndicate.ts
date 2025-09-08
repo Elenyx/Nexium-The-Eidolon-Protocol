@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import { UserService } from '../services/userService';
-import pool from '../database/connection';
+import { UserService } from '../services/userService.js';
+import pool from '../database/connection.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -503,3 +503,4 @@ export default {
     `);
   }
 };
+
