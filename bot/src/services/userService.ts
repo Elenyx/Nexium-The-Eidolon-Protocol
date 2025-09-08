@@ -23,14 +23,18 @@ export class UserService {
   }
 
   static async updateUser(id: string, updates: Partial<User>): Promise<User> {
-    const setClause = Object.keys(updates)
+    // Always update last_active to CURRENT_TIMESTAMP
+    const filteredUpdates = { ...updates };
+    delete filteredUpdates.last_active; // Remove last_active from updates to avoid conflict
+    
+    const setClause = Object.keys(filteredUpdates)
       .map((key, index) => `${key} = $${index + 2}`)
       .join(', ');
     
-    const values = Object.values(updates);
+    const values = Object.values(filteredUpdates);
     const query = `
       UPDATE users 
-      SET ${setClause}, last_active = CURRENT_TIMESTAMP 
+      SET ${setClause}${setClause ? ', ' : ''}last_active = CURRENT_TIMESTAMP 
       WHERE id = $1 
       RETURNING *
     `;
