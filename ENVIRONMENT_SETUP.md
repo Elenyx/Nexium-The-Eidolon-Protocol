@@ -60,13 +60,14 @@ NODE_ENV=development
    - **Local Development**: `http://localhost:5000/api/auth/discord/callback`
    - **Railway**: `https://your-app-name.railway.app/api/auth/discord/callback`
    - **Netlify**: `https://your-site-name.netlify.app/api/auth/discord/callback`
+   - **Custom Domain**: `https://yourdomain.com/api/auth/discord/callback` (e.g., `https://nexium-rpg.win/api/auth/discord/callback`)
 4. **DATABASE_URL**: Same PostgreSQL connection string as the bot
 
 ## Discord OAuth2 Setup
 
 In Discord Developer Portal → OAuth2 → General:
 
-1. **Redirects**: Add your redirect URI (e.g., `http://localhost:5000/api/auth/discord/callback`)
+1. **Redirects**: Add your redirect URI (e.g., `https://nexium-rpg.win/api/auth/discord/callback`)
 2. **Scopes**: Make sure you have `bot` and `applications.commands` scopes
 
 ## Database Setup
