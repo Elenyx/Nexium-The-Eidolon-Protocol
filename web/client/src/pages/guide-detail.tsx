@@ -206,11 +206,23 @@ function generateTOC(content: string) {
 
   for (const line of lines) {
     if (line.startsWith('# ')) {
-      toc.push({ level: 1, text: line.substring(2), id: line.substring(2).toLowerCase().replace(/\s+/g, '-') });
+      toc.push({ 
+        level: 1, 
+        text: line.substring(2), 
+        id: line.substring(2).toLowerCase().replace(/\s+/g, '-')
+      });
     } else if (line.startsWith('## ')) {
-      toc.push({ level: 2, text: line.substring(3), id: line.substring(3).toLowerCase().replace(/\s+/g, '-') });
+      toc.push({ 
+        level: 2, 
+        text: line.substring(3), 
+        id: line.substring(3).toLowerCase().replace(/\s+/g, '-')
+      });
     } else if (line.startsWith('### ')) {
-      toc.push({ level: 3, text: line.substring(4), id: line.substring(4).toLowerCase().replace(/\s+/g, '-') });
+      toc.push({ 
+        level: 3, 
+        text: line.substring(4), 
+        id: line.substring(4).toLowerCase().replace(/\s+/g, '-')
+      });
     }
   }
 
@@ -264,7 +276,7 @@ export default function GuideDetail() {
             <div className="bg-card border rounded-lg p-8 shadow-sm mb-8">
               <div className="flex items-center gap-2 mb-4">
                 <Badge variant="secondary">{guide.category}</Badge>
-                <div className="flex items-center text-sm text-muted-foreground">
+                <div className="flex items-center text-sm text-foreground/80">
                   <Clock className="w-4 h-4 mr-1" />
                   {guide.readTime}
                 </div>
@@ -272,10 +284,10 @@ export default function GuideDetail() {
               <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 {guide.title}
               </h1>
-              <p className="text-xl text-muted-foreground mb-6">
+              <p className="text-xl text-foreground/80 mb-6">
                 {guide.description}
               </p>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-4 text-sm text-foreground/80">
                 <div className="flex items-center">
                   <User className="w-4 h-4 mr-1" />
                   {guide.author}
@@ -292,12 +304,21 @@ export default function GuideDetail() {
             {/* Content */}
             <div className="bg-card border rounded-lg p-8 shadow-sm">
               <div
-                className="prose prose-lg max-w-none dark:prose-invert prose-headings:scroll-mt-20 prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-code:text-primary prose-a:text-primary hover:prose-a:text-primary/80 prose-p:leading-relaxed prose-headings:mb-4 prose-p:mb-4 prose-ul:mb-4 prose-ol:mb-4 prose-li:mb-2"
+                className="prose prose-lg max-w-none dark:prose-invert prose-headings:scroll-mt-20 prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-code:text-primary prose-a:text-primary hover:prose-a:text-primary/80 prose-p:leading-relaxed prose-headings:mb-4 prose-p:mb-4 prose-ul:mb-4 prose-ol:mb-4 prose-li:mb-2 prose-li:text-foreground"
                 dangerouslySetInnerHTML={{
                   __html: guide.content
-                    .replace(/^# (.+)$/gm, '<h1 id="$1">$1</h1>')
-                    .replace(/^## (.+)$/gm, '<h2 id="$1">$1</h2>')
-                    .replace(/^### (.+)$/gm, '<h3 id="$1">$1</h3>')
+                    .replace(/^# (.+)$/gm, (_: string, heading: string) => {
+                      const id = heading.toLowerCase().replace(/\s+/g, '-');
+                      return `<h1 id="${id}">${heading}</h1>`;
+                    })
+                    .replace(/^## (.+)$/gm, (_: string, heading: string) => {
+                      const id = heading.toLowerCase().replace(/\s+/g, '-');
+                      return `<h2 id="${id}">${heading}</h2>`;
+                    })
+                    .replace(/^### (.+)$/gm, (_: string, heading: string) => {
+                      const id = heading.toLowerCase().replace(/\s+/g, '-');
+                      return `<h3 id="${id}">${heading}</h3>`;
+                    })
                     .replace(/\n\n/g, '</p><p>')
                     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                     .replace(/`(.+?)`/g, '<code>$1</code>')
@@ -323,7 +344,7 @@ export default function GuideDetail() {
                   <a
                     key={index}
                     href={`#${item.id}`}
-                    className={`block text-sm hover:text-primary transition-colors duration-200 py-1 px-2 rounded hover:bg-accent/50 ${
+                    className={`toc-link block text-sm text-foreground hover:text-primary transition-colors duration-200 py-2 px-3 rounded hover:bg-accent/50 ${
                       item.level === 1 ? 'font-semibold' :
                       item.level === 2 ? 'ml-4' :
                       item.level === 3 ? 'ml-8' : ''
@@ -333,6 +354,10 @@ export default function GuideDetail() {
                       const element = document.getElementById(item.id);
                       if (element) {
                         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Add active state with a highlight
+                        const allLinks = document.querySelectorAll('.toc-link');
+                        allLinks.forEach(link => link.classList.remove('bg-accent/50', 'text-primary'));
+                        e.currentTarget.classList.add('bg-accent/50', 'text-primary');
                       }
                     }}
                   >

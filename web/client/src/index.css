@@ -15,7 +15,7 @@
   --secondary: hsl(262, 45%, 25%);
   --secondary-foreground: hsl(0, 0%, 98%);
   --muted: hsl(240, 6%, 15%);
-  --muted-foreground: hsl(240, 5%, 64%);
+  --muted-foreground: hsl(0, 0%, 80%);
   --accent: hsl(262, 91%, 70%);
   --accent-foreground: hsl(240, 10%, 6%);
   --destructive: hsl(0, 62%, 30%);
@@ -64,7 +64,7 @@
   --secondary: hsl(262, 45%, 25%);
   --secondary-foreground: hsl(0, 0%, 98%);
   --muted: hsl(240, 6%, 15%);
-  --muted-foreground: hsl(240, 5%, 64%);
+  --muted-foreground: hsl(0, 0%, 80%);
   --accent: hsl(262, 91%, 70%);
   --accent-foreground: hsl(240, 10%, 6%);
   --destructive: hsl(0, 62%, 30%);
@@ -128,7 +128,7 @@
   }
   
   .rarity-common {
-    border: 2px solid #6b7280;
+    border: 2px solid #9ca3af;
   }
   
   .battle-card {
@@ -140,3 +140,4 @@
     background: linear-gradient(90deg, var(--primary), var(--accent));
   }
 }
+

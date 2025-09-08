@@ -222,7 +222,7 @@ export default function Guides() {
         <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           Guides & Tutorials
         </h1>
-        <p className="text-lg text-muted-foreground">
+        <p className="text-lg text-foreground/80">
           Master Nexium RPG with our comprehensive guides and tutorials
         </p>
       </div>
@@ -230,7 +230,7 @@ export default function Guides() {
       {/* Search and Filter */}
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-foreground/60 w-4 h-4" />
           <Input
             placeholder="Search guides..."
             value={searchTerm}
@@ -269,7 +269,7 @@ export default function Guides() {
                 <Badge variant="secondary" className="mb-2">
                   {guide.category}
                 </Badge>
-                <span className="text-sm text-muted-foreground">{guide.readTime}</span>
+                <span className="text-sm text-foreground/70">{guide.readTime}</span>
               </div>
               <CardTitle className="line-clamp-2 group-hover:text-primary transition-colors">
                 <Link href={`/guides/${guide.id}`} className="hover:underline">
@@ -281,7 +281,7 @@ export default function Guides() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <div className="flex items-center justify-between text-sm text-foreground/70">
                 <span>By {guide.author}</span>
                 <span>{new Date(guide.publishedAt).toLocaleDateString()}</span>
               </div>
@@ -292,7 +292,7 @@ export default function Guides() {
 
       {filteredGuides.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-muted-foreground text-lg">No guides found matching your criteria.</p>
+          <p className="text-foreground/80 text-lg">No guides found matching your criteria.</p>
           <Button
             variant="outline"
             className="mt-4"
