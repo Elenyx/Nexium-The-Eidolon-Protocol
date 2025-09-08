@@ -1,5 +1,5 @@
-import pool from '../database/connection.js';
-import { User } from '../types/index.js';
+import pool from '../database/connection';
+import { User } from '../types/index';
 
 export class UserService {
   static async createUser(id: string, username: string): Promise<User> {

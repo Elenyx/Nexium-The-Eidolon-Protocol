@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "description": "Nexium RPG: The Eidolon Protocol - A sophisticated Discord RPG bot",
   "main": "dist/index.js",
-  "type": "module",
+  
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "node build.js",
     "start": "node dist/index.js",
     "deploy": "npm run build && npm run deploy-commands",
     "deploy-commands": "node dist/deploy-commands.js",
-    "seed": "tsx src/database/seed.ts"
+    "seed": "tsx src/database/seed.ts",
+    "postinstall": "npm run build"
   },
   "keywords": [
     "discord",
