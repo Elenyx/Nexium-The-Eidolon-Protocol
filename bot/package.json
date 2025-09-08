@@ -35,13 +35,17 @@
   "devDependencies": {
     "@types/node": "^22.5.4",
     "@types/pg": "^8.15.5",
-    "@vitest/coverage-c8": "^0.33.0",
+    "@vitest/coverage-v8": "^3.2.4",
     "tsx": "^4.19.1",
     "typescript": "^5.6.2",
     "vitest": "^3.2.4"
   }
   ,
   "vitest": {
-    "setupFiles": ["test/setup.js"]
+    "setupFiles": ["test/setup.js"],
+    "coverage": {
+      "provider": "v8",
+      "reporter": ["text", "json", "html"]
+    }
   }
 }
