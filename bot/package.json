@@ -5,17 +5,17 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-  "dev": "tsx watch src/index.ts",
-  "ensure-db": "tsx src/database/init.ts",
-  "build": "node simplified-build.js",
-  "start": "cross-env NODE_ENV=production node dist/index.js",
-  "deploy": "npm run build && npm run deploy-commands",
-  "deploy-commands": "cross-env NODE_ENV=production node dist/deploy-commands.js",
-  "seed": "tsx src/database/seed.ts",
-  "postinstall": "npm run build",
-  "test": "vitest",
-  "test:unit": "vitest run",
-  "test:watch": "vitest"
+    "dev": "tsx watch src/index.ts",
+    "ensure-db": "tsx src/database/init.ts",
+    "build": "node simplified-build.js",
+    "start": "cross-env NODE_ENV=production node dist/index.js",
+    "deploy": "npm run build && npm run deploy-commands",
+    "deploy-commands": "cross-env NODE_ENV=production node dist/deploy-commands.js",
+    "seed": "tsx src/database/seed.ts",
+    "postinstall": "npm run build",
+    "test": "vitest",
+    "test:unit": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [
     "discord",
@@ -30,6 +30,7 @@
     "discord.js": "^14.19.3",
     "discraft": "^1.7.8",
     "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.44.5",
     "pg": "^8.12.0"
   },
   "devDependencies": {
@@ -39,13 +40,18 @@
     "tsx": "^4.19.1",
     "typescript": "^5.6.2",
     "vitest": "^3.2.4"
-  }
-  ,
+  },
   "vitest": {
-    "setupFiles": ["test/setup.js"],
+    "setupFiles": [
+      "test/setup.js"
+    ],
     "coverage": {
       "provider": "v8",
-      "reporter": ["text", "json", "html"]
+      "reporter": [
+        "text",
+        "json",
+        "html"
+      ]
     }
   }
 }

@@ -1,4 +1,4 @@
-import type { Character } from "@shared/schema";
+import type { Character } from "../../../../shared/types/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
