@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
-import type { Character } from "@shared/schema";
+import type { Character } from "../../../../shared/types/schema";
 
 export default function Characters() {
   const { user, loading } = useAuth();

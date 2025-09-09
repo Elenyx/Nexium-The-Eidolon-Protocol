@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
 import type { DashboardStats, RecentBattle } from "@/types";
-import type { Character } from "@shared/schema";
+import type { Character } from "../../../../shared/types/schema";
 import { Users, Sword, Gem, Flag } from "lucide-react";
 
 export default function Home() {

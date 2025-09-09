@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trophy, Shield, Users, Flag, Crown, Medal, Award } from "lucide-react";
 import type { LeaderboardPlayer } from "@/types";
-import type { Guild } from "@shared/schema";
+import type { Guild } from "../../../../shared/types/schema";
 
 export default function Leaderboard() {
   const { data: pvpLeaderboard, isLoading: pvpLoading } = useQuery<LeaderboardPlayer[]>({
