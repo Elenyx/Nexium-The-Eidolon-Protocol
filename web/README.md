@@ -1,6 +1,6 @@
 # Overview
 
-Nexium is an anime-themed Discord RPG bot web application that allows users to collect characters, engage in battles, participate in guild wars, and interact through forums. The application features a modern React frontend with a Node.js/Express backend, using PostgreSQL for data persistence through Drizzle ORM. Users authenticate via Discord OAuth and can manage their character collections, view battle histories, participate in leaderboards, and engage with the community through forum discussions.
+Nexium is an anime-themed Discord RPG bot web application that allows users to collect characters, engage in battles, participate in guild wars, and more. The application features a modern React frontend with a Node.js/Express backend, using PostgreSQL for data persistence through Drizzle ORM. Users authenticate via Discord OAuth and can manage their character collections, view battle histories, participate in leaderboards, and engage with the community.
 
 # User Preferences
 

@@ -21,7 +21,6 @@ export function Header() {
     { href: "/dashboard", label: "Dashboard" },
     { href: "/characters", label: "Characters" },
     { href: "/battles", label: "Battles" },
-    { href: "/forums", label: "Forums" },
     { href: "/leaderboard", label: "Leaderboard" },
   ];
 

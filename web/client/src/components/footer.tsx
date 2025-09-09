@@ -87,11 +87,6 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <Link href="/forums" className="hover:text-accent transition-colors" data-testid="footer-forum">
-                  Community Forum
-                </Link>
-              </li>
-              <li>
                 <a href="#" className="hover:text-accent transition-colors" data-testid="footer-bug-report">
                   Report Bug
                 </a>

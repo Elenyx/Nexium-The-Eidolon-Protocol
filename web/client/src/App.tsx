@@ -9,7 +9,6 @@ import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
 import Characters from "@/pages/characters";
 import Battles from "@/pages/battles";
-import Forums from "@/pages/forums";
 import Leaderboard from "@/pages/leaderboard";
 import NotFound from "@/pages/not-found";
 
@@ -20,7 +19,6 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/characters" component={Characters} />
       <Route path="/battles" component={Battles} />
-      <Route path="/forums" component={Forums} />
       <Route path="/leaderboard" component={Leaderboard} />
       <Route component={NotFound} />
     </Switch>
