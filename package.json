@@ -5,12 +5,11 @@
     "shared"
   ],
   "dependencies": {
-    "drizzle-orm": "^0.40.0",
-    "drizzle-zod": "^0.7.0",
+    "pg": "^8.16.3",
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@types/pg": "^8.11.10"
+    "@types/pg": "^8.15.5"
   },
   "scripts": {
     "start": "npm run start --workspace=bot",
