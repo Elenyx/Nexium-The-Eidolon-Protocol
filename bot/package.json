@@ -7,12 +7,12 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "ensure-db": "tsx src/database/init.ts",
-    "build": "node simplified-build.js",
+  "build": "tsc -b tsconfig.json",
+    "legacy-build": "node legacy/simplified-build.js",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "deploy": "npm run build && npm run deploy-commands",
     "deploy-commands": "cross-env NODE_ENV=production node dist/deploy-commands.js",
     "seed": "tsx src/database/seeds/seed.ts",
-    "postinstall": "npm run build",
     "test": "vitest",
     "test:unit": "vitest run",
     "test:watch": "vitest"
