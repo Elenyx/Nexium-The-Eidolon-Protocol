@@ -1,5 +1,23 @@
 ## Configuration Options
 
+
+## Monorepo Independence and Shell Compatibility
+
+### Folder Independence
+
+- The `bot/` and `web/` folders must each be fully independent projects.
+- Each must have its own `package.json`, `package-lock.json`, and `node_modules`.
+- Do not rely on the root `package.json` or root `node_modules` for any build, install, or runtime step.
+- All install, build, and start commands must be run from within the respective `bot/` or `web/` directory.
+- For deployment (e.g., Railway), set the working directory to either `/bot` or `/web` as needed. Do not deploy from the monorepo root.
+
+### PowerShell & Command Chaining
+
+- Do not use `&&` to chain commands in PowerShell. Use `;` or run commands separately.
+- All documentation and scripts must avoid Unix-style chaining in Windows/PowerShell contexts.
+
+---
+
 ### Option 1: Shared Database (Recommended)
 
 ```bash
