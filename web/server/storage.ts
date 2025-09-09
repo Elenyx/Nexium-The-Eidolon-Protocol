@@ -22,7 +22,7 @@ import {
   type ForumReply,
   type InsertForumReply,
   type PlayerStats,
-} from "../shared/types/schema";
+} from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, count, and } from "drizzle-orm";
 
@@ -103,7 +103,8 @@ export class DatabaseStorage implements IStorage {
   async createCharacter(character: InsertCharacter): Promise<Character> {
     const [newCharacter] = await db
       .insert(characters)
-      .values(character)
+      // cast to any because runtime data may come from parsed JSON and Drizzle types are strict
+      .values(character as any)
       .returning();
     return newCharacter;
   }
@@ -123,7 +124,8 @@ export class DatabaseStorage implements IStorage {
   async createBattle(battle: InsertBattle): Promise<Battle> {
     const [newBattle] = await db
       .insert(battles)
-      .values(battle)
+      // cast to any to satisfy Drizzle's strict overloads for array vs single insert
+      .values(battle as any)
       .returning();
     return newBattle;
   }

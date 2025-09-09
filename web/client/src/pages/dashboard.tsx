@@ -6,7 +6,7 @@ import { BattleCard } from "@/components/battle-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import type { Character, Battle, PlayerStats } from "../../../../shared/types/schema";
+import type { Character, Battle, PlayerStats } from "@shared/schema";
 import type { RecentBattle } from "@/types";
 
 export default function Dashboard() {

@@ -1,373 +1,327 @@
 import { useParams, Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Clock, User, Calendar } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft } from "lucide-react";
 
-// Mock data - in a real app, fetch from API
-const guidesData = [
+interface Guide {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  readTime: string;
+  content: string;
+}
+
+const guides: Guide[] = [
   {
     id: "getting-started",
     title: "Getting Started with Nexium RPG",
-    description: "Learn the basics of the Discord RPG bot and how to begin your adventure.",
+    description: "Learn the basics of playing Nexium RPG, from creating your first character to your first battle.",
     category: "Basics",
-    thumbnail: "/api/placeholder/400/250",
     readTime: "5 min read",
-    author: "Nexium Team",
-    publishedAt: "2025-01-15",
-    content: `# Getting Started with Nexium RPG
+    content: `
+# Getting Started with Nexium RPG
 
-Welcome to Nexium RPG! This comprehensive guide will help you get started with our Discord bot.
+Welcome to Nexium RPG! This guide will walk you through everything you need to know to start your adventure.
 
-## What is Nexium RPG?
+## Creating Your Account
 
-Nexium RPG is an immersive Discord-based role-playing game featuring character collection, battles, and community interactions.
+1. Click the "Login with Discord" button in the top right corner
+2. Authorize the application with your Discord account
+3. You'll be redirected back to the site with your account created
 
-## First Steps
+## Your First Character
 
-1. **Invite the Bot**: Add Nexium to your Discord server
-2. **Register**: Use the \`/register\` command to create your account
-3. **Collect Characters**: Start collecting your first characters
-4. **Join Battles**: Participate in PvP or PvE battles
+Once logged in, head to the Characters page to create your first character:
 
-## Basic Commands
+1. Click "Create New Character"
+2. Choose your character's name and appearance
+3. Select your starting class (Warrior, Mage, Rogue, etc.)
+4. Distribute your initial stat points
+5. Equip your starting gear
 
-- \`/profile\` - View your profile
-- \`/inventory\` - Check your characters
-- \`/battle\` - Start a battle
-- \`/shop\` - Browse the shop
+## Exploring the World
 
-## Tips for New Players
+- Use the Dashboard to see your current status
+- Visit the Battles page to find opponents
+- Check the Leaderboard to see top players
+- Join discussions in the Forums
 
-- Complete daily quests for rewards
-- Join a guild for bonuses
-- Participate in events for exclusive items
+## Your First Battle
 
-Happy adventuring!`
+1. Go to the Battles page
+2. Select an opponent or join a matchmaking queue
+3. Choose your actions during combat
+4. Win rewards and experience points!
+
+Remember, practice makes perfect. Don't be afraid to experiment with different strategies and builds.
+    `
   },
   {
-    id: "character-collection",
-    title: "Mastering Character Collection",
-    description: "Advanced strategies for building the ultimate character collection.",
-    category: "Advanced",
-    thumbnail: "/api/placeholder/400/250",
-    readTime: "8 min read",
-    author: "Nexium Team",
-    publishedAt: "2025-01-20",
-    content: `# Mastering Character Collection
-
-Build your ultimate team with these advanced collection strategies.
-
-## Rarity System
-
-Understanding rarities is crucial for collection success.
-
-### Common (Gray)
-- Easy to obtain
-- Good for beginners
-
-### Rare (Blue)
-- Moderate difficulty
-- Balanced stats
-
-### Epic (Purple)
-- Challenging to get
-- High potential
-
-### Legendary (Gold)
-- Extremely rare
-- Best in game
-
-## Collection Strategies
-
-### 1. Daily Farming
-Set aside time each day for consistent collection.
-
-### 2. Event Participation
-Don't miss seasonal events for exclusive characters.
-
-### 3. Trading System
-Use the marketplace to complete your collection.
-
-## Power Leveling
-
-Focus on leveling your strongest characters first.`
-  },
-  {
-    id: "battle-system",
-    title: "Battle System Deep Dive",
-    description: "Everything you need to know about combat mechanics and strategies.",
-    category: "Combat",
-    thumbnail: "/api/placeholder/400/250",
+    id: "character-building",
+    title: "Advanced Character Building",
+    description: "Master the art of character creation with tips on stats, skills, and equipment optimization.",
+    category: "Characters",
     readTime: "10 min read",
-    author: "Nexium Team",
-    publishedAt: "2025-01-25",
-    content: `# Battle System Deep Dive
+    content: `
+# Advanced Character Building
 
-Master the art of combat in Nexium RPG.
+Building a powerful character requires careful planning and understanding of the game's mechanics.
+
+## Understanding Stats
+
+- **Strength**: Increases physical damage and health
+- **Intelligence**: Boosts magical damage and mana
+- **Dexterity**: Improves accuracy and critical hit chance
+- **Vitality**: Provides additional health and defense
+
+## Skill Trees
+
+Each class has unique skill trees that branch out as you level up. Focus on skills that complement your playstyle:
+
+### Warrior Skills
+- Heavy Strike: High damage, slow attack
+- Shield Wall: Temporary defense boost
+- Battle Cry: Area damage and debuff
+
+### Mage Skills
+- Fireball: Single target magic damage
+- Ice Shield: Defensive spell
+- Chain Lightning: Multi-target damage
+
+## Equipment Optimization
+
+1. **Weapons**: Choose based on your primary stat
+2. **Armor**: Balance defense with mobility
+3. **Accessories**: Look for set bonuses
+4. **Enchantments**: Upgrade gear as you progress
+
+## Build Strategies
+
+### Glass Cannon
+- Max damage stats
+- Minimal defense investment
+- High risk, high reward
+
+### Tank Build
+- Focus on health and defense
+- Support abilities
+- Protects allies in group combat
+
+### Hybrid Build
+- Balanced stats
+- Versatile abilities
+- Good for solo and team play
+    `
+  },
+  {
+    id: "battle-strategies",
+    title: "Battle Strategies and Tactics",
+    description: "Discover winning strategies for different battle types and how to counter various playstyles.",
+    category: "Combat",
+    readTime: "8 min read",
+    content: `
+# Battle Strategies and Tactics
+
+Mastering combat in Nexium RPG requires strategy, timing, and adaptability.
+
+## Basic Combat Principles
+
+1. **Know Your Enemy**: Study opponent patterns before engaging
+2. **Resource Management**: Monitor health, mana, and cooldowns
+3. **Positioning**: Use terrain and positioning to your advantage
+4. **Timing**: Perfect timing can turn the tide of battle
 
 ## Battle Types
 
 ### PvP Battles
-- Player vs Player combat
-- Ranked and casual modes
-- Tournament system
+- Fast-paced, high-stakes combat
+- Requires quick decision-making
+- Counter-play is crucial
 
 ### PvE Battles
-- Dungeon crawling
-- Boss fights
-- Story missions
+- Strategic encounters with monsters
+- Focus on party coordination
+- Environmental hazards to consider
 
-## Combat Mechanics
+## Advanced Tactics
 
-### Turn-Based System
-Each character takes turns based on speed.
+### Crowd Control
+- Stun and interrupt enemy actions
+- Create openings for devastating combos
+- Coordinate with teammates
 
-### Elemental Advantages
-Fire > Wind > Water > Fire (cyclic)
+### Burst Damage
+- Build up powerful abilities
+- Time your burst windows perfectly
+- Overwhelm opponents before they react
 
-### Status Effects
-- Burn: Damage over time
-- Freeze: Prevents action
-- Poison: Reduces health
+### Sustain Strategies
+- Maintain pressure over time
+- Wear down opponents gradually
+- Excellent for prolonged engagements
 
-## Strategy Tips
+## Counter Strategies
 
-1. **Team Composition**: Balance your elements
-2. **Positioning**: Front line tanks, back line damage
-3. **Timing**: Use abilities at optimal moments`
+### Against Aggressive Players
+- Use defensive abilities
+- Create distance
+- Wait for cooldowns to reset
+
+### Against Defensive Players
+- Apply pressure consistently
+- Force mistakes
+- Exploit weaknesses
+
+### Against Hybrid Players
+- Adapt your strategy mid-battle
+- Mix up your attack patterns
+- Stay unpredictable
+
+Remember, the key to victory is adaptability. No single strategy works against every opponent.
+    `
   },
   {
-    id: "guild-management",
-    title: "Guild Leadership Guide",
-    description: "Learn how to build and manage a successful guild in Nexium RPG.",
+    id: "community-engagement",
+    title: "Engaging with the Community",
+    description: "Make the most of forums, Discord, and social features to connect with other players.",
     category: "Community",
-    thumbnail: "/api/placeholder/400/250",
-    readTime: "7 min read",
-    author: "Nexium Team",
-    publishedAt: "2025-02-01",
-    content: `# Guild Leadership Guide
+    readTime: "6 min read",
+    content: `
+# Engaging with the Community
 
-Build and lead a thriving guild in Nexium RPG.
+Nexium RPG thrives on its vibrant community. Here's how to get involved and make the most of your experience.
 
-## Starting a Guild
+## Forums
 
-### Requirements
-- Level 20+ account
-- 10,000 gold
-- Leadership skills
+### Getting Started
+- Introduce yourself in the Welcome section
+- Read the rules and guidelines
+- Participate in discussions respectfully
 
-### Naming Your Guild
-Choose a name that reflects your guild's identity.
+### Useful Sections
+- **General Discussion**: Share your thoughts and ideas
+- **Help & Support**: Get assistance with game issues
+- **Strategy Guides**: Learn from experienced players
+- **Fan Art & Media**: Share your creations
 
-## Recruitment
+## Discord Server
 
-### Finding Members
-- Post in forums
-- Use recruitment channels
-- Network with other players
+### Channels to Join
+- **#general**: Main chat for all topics
+- **#game-discussion**: Talk about gameplay and strategies
+- **#looking-for-group**: Find teammates for battles
+- **#off-topic**: Casual conversation
 
-### Member Screening
-- Check activity levels
-- Verify skill compatibility
-- Ensure cultural fit
+### Server Rules
+- Be respectful to all members
+- No spam or excessive caps
+- Keep discussions appropriate
+- Use appropriate channels for topics
 
-## Guild Management
+## Social Features
 
-### Roles and Permissions
-- Leader: Full control
-- Officers: Moderation powers
-- Members: Basic access
+### Friend System
+- Add friends to keep track of their progress
+- Send private messages
+- Join private battles together
 
-### Guild Events
-- Weekly raids
-- Member meetups
-- Training sessions
+### Guilds and Teams
+- Join or create a guild
+- Participate in guild events
+- Compete in team battles
 
-## Guild Wars
+## Community Events
 
-### Preparation
-- Team coordination
-- Strategy planning
-- Resource allocation
+### Regular Events
+- Weekly tournaments
+- Community challenges
+- Special in-game events
 
-### Battle Tactics
-- Formation selection
-- Ability timing
-- Backup plans`
+### Contributing to the Community
+- Share your strategies and tips
+- Help new players
+- Report bugs and suggest improvements
+- Create content for others to enjoy
+
+## Best Practices
+
+1. **Be Positive**: Encourage and support fellow players
+2. **Stay Safe**: Don't share personal information
+3. **Learn from Others**: Everyone has something to teach
+4. **Give Back**: Help others as you've been helped
+
+The Nexium community is what makes the game special. Get involved and help build something amazing together!
+    `
   }
 ];
 
-function generateTOC(content: string) {
-  const lines = content.split('\n');
-  const toc = [];
-
-  for (const line of lines) {
-    if (line.startsWith('# ')) {
-      toc.push({ 
-        level: 1, 
-        text: line.substring(2), 
-        id: line.substring(2).toLowerCase().replace(/\s+/g, '-')
-      });
-    } else if (line.startsWith('## ')) {
-      toc.push({ 
-        level: 2, 
-        text: line.substring(3), 
-        id: line.substring(3).toLowerCase().replace(/\s+/g, '-')
-      });
-    } else if (line.startsWith('### ')) {
-      toc.push({ 
-        level: 3, 
-        text: line.substring(4), 
-        id: line.substring(4).toLowerCase().replace(/\s+/g, '-')
-      });
-    }
-  }
-
-  return toc;
-}
-
 export default function GuideDetail() {
   const { id } = useParams();
-  const [guide, setGuide] = useState<any>(null);
 
-  useEffect(() => {
-    const foundGuide = guidesData.find(g => g.id === id);
-    setGuide(foundGuide);
-  }, [id]);
+  const guide = guides.find(g => g.id === id);
 
   if (!guide) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Guide not found</h1>
-          <Link href="/guides">
-            <Button>
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-2xl font-bold mb-4">Guide Not Found</h1>
+          <p className="text-muted-foreground mb-6">The guide you're looking for doesn't exist.</p>
+          <Button asChild>
+            <Link href="/guides">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Guides
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
     );
   }
 
-  const toc = generateTOC(guide.content);
-
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Back Button */}
-      <div className="mb-6">
-        <Link href="/guides">
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Guides
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6">
+          <Button variant="ghost" asChild className="mb-4">
+            <Link href="/guides">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Guides
+            </Link>
           </Button>
-        </Link>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Main Content */}
-        <div className="lg:col-span-3 space-y-6">
-          <article className="prose prose-lg max-w-none dark:prose-invert">
-            {/* Header */}
-            <div className="bg-card border rounded-lg p-8 shadow-sm mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <Badge variant="secondary">{guide.category}</Badge>
-                <div className="flex items-center text-sm text-foreground/80">
-                  <Clock className="w-4 h-4 mr-1" />
-                  {guide.readTime}
-                </div>
-              </div>
-              <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                {guide.title}
-              </h1>
-              <p className="text-xl text-foreground/80 mb-6">
-                {guide.description}
-              </p>
-              <div className="flex items-center gap-4 text-sm text-foreground/80">
-                <div className="flex items-center">
-                  <User className="w-4 h-4 mr-1" />
-                  {guide.author}
-                </div>
-                <div className="flex items-center">
-                  <Calendar className="w-4 h-4 mr-1" />
-                  {new Date(guide.publishedAt).toLocaleDateString()}
-                </div>
-              </div>
-            </div>
+          <div className="flex items-center gap-2 mb-4">
+            <Badge variant="secondary">{guide.category}</Badge>
+            <span className="text-sm text-muted-foreground">{guide.readTime}</span>
+          </div>
 
-            <Separator className="mb-8" />
-
-            {/* Content */}
-            <div className="bg-card border rounded-lg p-8 shadow-sm">
-              <div
-                className="prose prose-lg max-w-none dark:prose-invert prose-headings:scroll-mt-20 prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-code:text-primary prose-a:text-primary hover:prose-a:text-primary/80 prose-p:leading-relaxed prose-headings:mb-4 prose-p:mb-4 prose-ul:mb-4 prose-ol:mb-4 prose-li:mb-2 prose-li:text-foreground"
-                dangerouslySetInnerHTML={{
-                  __html: guide.content
-                    .replace(/^# (.+)$/gm, (_: string, heading: string) => {
-                      const id = heading.toLowerCase().replace(/\s+/g, '-');
-                      return `<h1 id="${id}">${heading}</h1>`;
-                    })
-                    .replace(/^## (.+)$/gm, (_: string, heading: string) => {
-                      const id = heading.toLowerCase().replace(/\s+/g, '-');
-                      return `<h2 id="${id}">${heading}</h2>`;
-                    })
-                    .replace(/^### (.+)$/gm, (_: string, heading: string) => {
-                      const id = heading.toLowerCase().replace(/\s+/g, '-');
-                      return `<h3 id="${id}">${heading}</h3>`;
-                    })
-                    .replace(/\n\n/g, '</p><p>')
-                    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/`(.+?)`/g, '<code>$1</code>')
-                    .replace(/^- (.+)$/gm, '<li>$1</li>')
-                    .replace(/<li>.*?<\/li>/g, (match: string) => `<ul>${match}</ul>`)
-                    .replace(/^(\d+)\. (.+)$/gm, '<li>$1. $2</li>')
-                    .replace(/<li>.*?<\/li>/g, (match: string) => `<ol>${match}</ol>`)
-                }}
-              />
-            </div>
-          </article>
+          <h1 className="text-4xl font-bold mb-4">{guide.title}</h1>
+          <p className="text-lg text-muted-foreground">{guide.description}</p>
         </div>
 
-        {/* Table of Contents Sidebar */}
-        <div className="lg:col-span-1">
-          <Card className="sticky top-24">
-            <CardHeader>
-              <CardTitle className="text-lg">Table of Contents</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <nav className="space-y-2">
-                {toc.map((item, index) => (
-                  <a
-                    key={index}
-                    href={`#${item.id}`}
-                    className={`toc-link block text-sm text-foreground hover:text-primary transition-colors duration-200 py-2 px-3 rounded hover:bg-accent/50 ${
-                      item.level === 1 ? 'font-semibold' :
-                      item.level === 2 ? 'ml-4' :
-                      item.level === 3 ? 'ml-8' : ''
-                    }`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      const element = document.getElementById(item.id);
-                      if (element) {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        // Add active state with a highlight
-                        const allLinks = document.querySelectorAll('.toc-link');
-                        allLinks.forEach(link => link.classList.remove('bg-accent/50', 'text-primary'));
-                        e.currentTarget.classList.add('bg-accent/50', 'text-primary');
-                      }
-                    }}
-                  >
-                    {item.text}
-                  </a>
-                ))}
-              </nav>
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="prose prose-invert max-w-none">
+              {guide.content.split('\n').map((line, index) => {
+                if (line.startsWith('# ')) {
+                  return <h1 key={index} className="text-3xl font-bold mb-4 mt-8 first:mt-0">{line.slice(2)}</h1>;
+                } else if (line.startsWith('## ')) {
+                  return <h2 key={index} className="text-2xl font-semibold mb-3 mt-6">{line.slice(3)}</h2>;
+                } else if (line.startsWith('### ')) {
+                  return <h3 key={index} className="text-xl font-medium mb-2 mt-4">{line.slice(4)}</h3>;
+                } else if (line.startsWith('- ')) {
+                  return <li key={index} className="ml-4">{line.slice(2)}</li>;
+                } else if (line.trim() === '') {
+                  return <br key={index} />;
+                } else if (line.match(/^\d+\./)) {
+                  return <li key={index} className="ml-4 list-decimal">{line}</li>;
+                } else {
+                  return <p key={index} className="mb-4">{line}</p>;
+                }
+              })}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

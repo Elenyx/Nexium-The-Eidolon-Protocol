@@ -11,19 +11,17 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertForumPostSchema } from "../../../../shared/types/schema";
+import { insertForumPostSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { MessageSquare, Plus, Clock, Pin, Lock } from "lucide-react";
-import type { ForumCategory, ForumPost } from "../../../../shared/types/schema";
+import type { ForumCategory, ForumPost } from "@shared/schema";
 import { z } from "zod";
 
-const createPostSchema = z.object({
+const createPostSchema = insertForumPostSchema.extend({
   title: z.string().min(5, "Title must be at least 5 characters"),
   content: z.string().min(10, "Content must be at least 10 characters"),
-  categoryId: z.string().min(1, "Category is required"),
-  authorId: z.string().optional(),
 });
 
 export default function Forums() {
@@ -42,7 +40,7 @@ export default function Forums() {
     enabled: !!selectedCategory,
   });
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof createPostSchema>>({
     resolver: zodResolver(createPostSchema),
     defaultValues: {
       title: "",
@@ -53,7 +51,7 @@ export default function Forums() {
   });
 
   const createPostMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: z.infer<typeof createPostSchema>) => {
       const response = await apiRequest("POST", "/api/forum/posts", data);
       return response.json();
     },
@@ -75,7 +73,7 @@ export default function Forums() {
     },
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: z.infer<typeof createPostSchema>) => {
     if (!user) return;
     createPostMutation.mutate({
       ...data,
@@ -167,7 +165,6 @@ export default function Forums() {
                             <Input
                               placeholder="Enter post title..."
                               {...field}
-                              value={field.value || ""}
                               data-testid="post-title-input"
                             />
                           </FormControl>
@@ -186,7 +183,6 @@ export default function Forums() {
                               placeholder="Write your post content..."
                               className="min-h-[120px]"
                               {...field}
-                              value={field.value || ""}
                               data-testid="post-content-textarea"
                             />
                           </FormControl>

@@ -3,8 +3,8 @@ import { Link } from "wouter";
 export function Footer() {
   return (
     <footer className="bg-card border-t border-border mt-16">
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-6xl">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-3 mb-4">
@@ -105,7 +105,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-border mt-12 pt-8 text-center max-w-6xl">
+        <div className="border-t border-border mt-12 pt-8 text-center">
           <p className="text-muted-foreground">
             © 2025 Nexium-RPG. All rights reserved.
           </p>

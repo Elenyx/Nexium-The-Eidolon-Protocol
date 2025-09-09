@@ -18,20 +18,20 @@ export function Header() {
 
   const navItems = [
     { href: "/", label: "Home" },
-    { href: "/guides", label: "Guides" },
     { href: "/dashboard", label: "Dashboard" },
     { href: "/characters", label: "Characters" },
     { href: "/battles", label: "Battles" },
     { href: "/forums", label: "Forums" },
     { href: "/leaderboard", label: "Leaderboard" },
+    { href: "/guides", label: "Guides" },
   ];
 
   return (
     <header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm">
       <div className="container mx-auto px-4 py-3">
-        <nav className="flex items-center justify-between">
+        <nav className="flex items-center justify-between w-full">
           {/* Logo and Brand */}
-          <Link href="/" className="flex items-center space-x-3">
+          <Link href="/" className="flex items-center space-x-3 flex-shrink-0">
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-primary-foreground">
                 <path d="M12 2L8 12L16 12L12 2Z" fill="currentColor"/>
@@ -44,14 +44,14 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-4 flex-1 justify-center max-w-2xl">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`transition-colors ${
+                className={`transition-colors whitespace-nowrap text-sm ${
                   location === item.href
-                    ? "text-accent"
+                    ? "text-accent font-medium"
                     : "text-muted-foreground hover:text-accent"
                 }`}
                 data-testid={`nav-link-${item.label.toLowerCase()}`}

@@ -1,8 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertForumPostSchema, insertForumReplySchema } from "../shared/types/schema";
+import { insertForumPostSchema, insertForumReplySchema } from "@shared/schema";
 import { z } from "zod";
+import { buildDiscordAuthUrl, exchangeCodeForToken, fetchDiscordUser } from "./auth/discord";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard stats
@@ -198,12 +199,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Discord OAuth endpoints
   app.get("/api/auth/discord", (req, res) => {
-    const clientId = process.env.DISCORD_CLIENT_ID;
-    const redirectUri = process.env.DISCORD_REDIRECT_URI || `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'http://localhost:5000'}/api/auth/discord/callback`;
-    const scope = "identify email guilds";
-    
-    const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
-    
+    const authUrl = buildDiscordAuthUrl();
     res.redirect(authUrl);
   });
 
@@ -215,45 +211,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Missing authorization code" });
       }
 
-      const clientId = process.env.DISCORD_CLIENT_ID;
-      const clientSecret = process.env.DISCORD_CLIENT_SECRET;
-      const redirectUri = process.env.DISCORD_REDIRECT_URI || `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'http://localhost:5000'}/api/auth/discord/callback`;
-
       // Exchange code for access token
-      const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          client_id: clientId!,
-          client_secret: clientSecret!,
-          grant_type: 'authorization_code',
-          code: code as string,
-          redirect_uri: redirectUri,
-        }),
-      });
-
-      const tokenData = await tokenResponse.json();
-      
-      if (!tokenResponse.ok) {
-        console.error('Discord token error:', tokenData);
-        return res.status(400).json({ error: "Failed to exchange code for token" });
-      }
+      const tokenData = await exchangeCodeForToken(code as string);
 
       // Get user info from Discord
-      const userResponse = await fetch('https://discord.com/api/users/@me', {
-        headers: {
-          Authorization: `Bearer ${tokenData.access_token}`,
-        },
-      });
-
-      const discordUser = await userResponse.json();
-
-      if (!userResponse.ok) {
-        console.error('Discord user error:', discordUser);
-        return res.status(400).json({ error: "Failed to fetch user info" });
-      }
+      const discordUser = await fetchDiscordUser(tokenData.access_token);
 
       // Check if user exists or create new user
       let user = await storage.getUserByDiscordId(discordUser.id);
@@ -266,7 +228,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           discriminator: discordUser.discriminator,
           accessToken: tokenData.access_token,
           refreshToken: tokenData.refresh_token,
-          id: ""
         });
       } else {
         // Update existing user with new tokens
@@ -285,6 +246,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Authentication failed" });
     }
   });
+
+  // Development-only: simulate Discord OAuth callback to create a user
+  if (process.env.NODE_ENV === 'development') {
+    app.post('/api/auth/discord/dev-callback', async (req, res) => {
+      try {
+        const { discordId, username, avatar, discriminator, accessToken, refreshToken } = req.body;
+        if (!discordId) return res.status(400).json({ error: 'discordId is required' });
+
+        let user = await storage.getUserByDiscordId(discordId);
+        if (!user) {
+          user = await storage.createUser({
+            discordId,
+            username: username || `dev-${discordId}`,
+            avatar: avatar || null,
+            discriminator: discriminator || '0000',
+            accessToken: accessToken || null,
+            refreshToken: refreshToken || null,
+          });
+        } else {
+          user = await storage.updateUser(user.id, {
+            username: username || user.username,
+            avatar: avatar || user.avatar,
+            accessToken: accessToken || user.accessToken,
+            refreshToken: refreshToken || user.refreshToken,
+          });
+        }
+
+        res.json(user);
+      } catch (error) {
+        console.error('Dev callback error:', error);
+        res.status(500).json({ error: 'Dev callback failed' });
+      }
+    });
+  }
 
   const httpServer = createServer(app);
   return httpServer;
