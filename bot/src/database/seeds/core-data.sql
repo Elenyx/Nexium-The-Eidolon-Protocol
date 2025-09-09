@@ -9,5 +9,5 @@ VALUES
 -- Seed data for syndicates
 INSERT INTO syndicates (name, description, leader_id, level, resources, controlled_ward)
 VALUES
-	('Neo-Avalon Vanguard', 'Defenders of Neo-Avalon Central.', 100000000000000001, 1, 1000, 'Neo-Avalon Central'),
-	('The Null Collective', 'Seekers of forbidden knowledge.', 100000000000000002, 1, 500, 'The Null Zone');
+	('Neo-Avalon Vanguard', 'Defenders of Neo-Avalon Central.', NULL, 1, 1000, 'Neo-Avalon Central'),
+	('The Null Collective', 'Seekers of forbidden knowledge.', NULL, 1, 500, 'The Null Zone');
