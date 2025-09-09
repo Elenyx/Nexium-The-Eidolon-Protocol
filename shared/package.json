@@ -2,8 +2,8 @@
 	"name": "@nexium/shared",
 	"version": "1.0.0",
 	"description": "Shared database schema, types, and utilities for Nexium RPG bot and web.",
-	"main": "index.js",
-	"types": "types/index.d.ts",
+	"main": "index.ts",
+	"types": "types/index.ts",
 	"license": "MIT",
 	"private": true,
 	"scripts": {
