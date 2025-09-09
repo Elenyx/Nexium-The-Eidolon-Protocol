@@ -41,19 +41,21 @@ class NexiumBot {
   }
 
   async loadCommands(): Promise<void> {
-    // In production, use dist directory; in development, use src directory
-    // Default to production if NODE_ENV is not set (common in deployment environments)
-    const isProduction = process.env.NODE_ENV === 'production' || process.env.NODE_ENV == null;
+    // Detect if we're running from dist (compiled) or src (development)
+    const currentFile = import.meta.url;
+    const isRunningFromDist = currentFile.includes('/dist/') || currentFile.includes('\\dist\\');
+    const isProduction = process.env.NODE_ENV === 'production' || isRunningFromDist;
+    
     const commandsPath = isProduction 
       ? path.join(process.cwd(), 'dist', 'commands')
       : path.join(process.cwd(), 'src', 'commands');
     
     const fileExtension = isProduction ? '.js' : '.ts';
     const commandFiles = readdirSync(commandsPath).filter(file => 
-      file.endsWith(fileExtension) || (!isProduction && file.endsWith('.js'))
+      file.endsWith(fileExtension)
     );
 
-    console.log(`Environment: ${process.env.NODE_ENV || 'undefined (defaulting to production)'}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'undefined'} (detected ${isProduction ? 'production' : 'development'})`);
     console.log(`Loading commands from: ${commandsPath}`);
     console.log(`Looking for files with extension: ${fileExtension}`);
     console.log(`Found ${commandFiles.length} command files:`, commandFiles);
@@ -61,9 +63,7 @@ class NexiumBot {
     for (const file of commandFiles) {
       try {
         // Use relative import path instead of pathToFileURL
-        const commandPath = isProduction 
-          ? `./commands/${file}`
-          : `./commands/${file}`;
+        const commandPath = `./commands/${file}`;
         
         const commandModule = await import(commandPath);
         const command = commandModule.default;

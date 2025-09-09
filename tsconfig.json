@@ -3,11 +3,11 @@
   "references": [
     { "path": "./web" },
     { "path": "./bot" },
-  { "path": "./shared/tsconfig.json" }
+    { "path": "./shared" }
   ],
-  "include": [
-    "web/**/*",
-    "bot/**/*",
-    "shared/**/*"
-  ]
+  "compilerOptions": {
+    "composite": true,
+    "strict": true,
+    "skipLibCheck": true
+  }
 }
