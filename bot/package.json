@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "ensure-db": "tsx src/database/init.ts",
-  "build": "tsc -b tsconfig.json",
+    "build": "tsc -b tsconfig.json",
     "legacy-build": "node legacy/simplified-build.js",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "deploy": "npm run build && npm run deploy-commands",
@@ -30,7 +30,8 @@
     "discord.js": "^14.19.3",
     "discraft": "^1.7.8",
     "dotenv": "^16.4.5",
-    "pg": "^8.12.0"
+    "pg": "^8.12.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",
