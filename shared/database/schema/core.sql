@@ -1,0 +1,34 @@
+-- Items and equipment
+CREATE TABLE IF NOT EXISTS items (
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(100) NOT NULL,
+	type VARCHAR(50) NOT NULL, -- 'tuner', 'material', 'equipment', 'consumable'
+	subtype VARCHAR(50),
+	rarity VARCHAR(10) NOT NULL CHECK (rarity IN ('Unstable', 'Stable', 'Optimized', 'Flawless')),
+	description TEXT,
+	base_value INTEGER DEFAULT 0,
+	stats JSONB, -- Flexible stats storage
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Syndicates (Guilds)
+CREATE TABLE IF NOT EXISTS syndicates (
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(100) UNIQUE NOT NULL,
+	description TEXT,
+	leader_id BIGINT REFERENCES users(id),
+	level INTEGER DEFAULT 1,
+	resources INTEGER DEFAULT 0,
+	controlled_ward VARCHAR(100),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Syndicate memberships
+CREATE TABLE IF NOT EXISTS syndicate_members (
+	id SERIAL PRIMARY KEY,
+	syndicate_id INTEGER REFERENCES syndicates(id),
+	user_id BIGINT REFERENCES users(id),
+	rank VARCHAR(50) DEFAULT 'Member',
+	joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	contribution_points INTEGER DEFAULT 0
+);

@@ -1,3 +1,54 @@
+## Configuration Options
+
+### Option 1: Shared Database (Recommended)
+
+```bash
+# Both bot and web use the same database file
+BOT_DATABASE_URL=./shared/data/nexium.db
+WEB_DATABASE_URL=./shared/data/nexium.db
+```
+
+### Option 2: Separate Databases
+
+```bash
+# Each project has its own database
+BOT_DATABASE_URL=./bot/data/bot.db
+WEB_DATABASE_URL=./web/data/web.db
+```
+
+### Option 3: Environment-Specific
+
+```bash
+# Development
+DATABASE_URL=./dev-data/nexium.db
+
+# Production
+DATABASE_URL=/var/lib/nexium/production.db
+```
+
+## Migration Strategy
+
+1. **Create Migration Files**
+
+```text
+shared/database/migrations/
+├── 001_initial_schema.sql
+├── 002_add_eidolon_tables.sql
+├── 003_add_combat_logs.sql
+└── ...
+```
+
+2. **Project-Specific Migrations**
+
+```text
+bot/src/database/migrations/
+├── bot_001_discord_specific.sql
+└── ...
+
+web/server/migrations/
+├── web_001_session_tables.sql
+└── ...
+```
 
 # Copilot Coding Agent Onboarding Instructions
 
