@@ -1,5 +1,5 @@
 {
-  "include": ["client/src/**/*", "server/**/*", "vite.config.ts", "../shared/types/**/*"],
+  "include": ["client/src/**/*", "server/**/*", "vite.config.ts", "shared/types/**/*"],
   "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
   "compilerOptions": {
     "composite": true,

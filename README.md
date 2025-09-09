@@ -5,9 +5,6 @@
 ![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)
 
-
-# Nexium RPG Monorepo Structure & Shared Database Utilities
-
 ## Detailed Project Structure
 
 ```text

@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertForumPostSchema, insertForumReplySchema } from "../../shared/types/schema";
+import { insertForumPostSchema, insertForumReplySchema } from "../shared/types/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -266,6 +266,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           discriminator: discordUser.discriminator,
           accessToken: tokenData.access_token,
           refreshToken: tokenData.refresh_token,
+          id: ""
         });
       } else {
         // Update existing user with new tokens

@@ -22,7 +22,7 @@ import {
   type ForumReply,
   type InsertForumReply,
   type PlayerStats,
-} from "../../shared/types/schema";
+} from "../shared/types/schema";
 import { db } from "./db";
 import { eq, desc, count, and } from "drizzle-orm";
 
