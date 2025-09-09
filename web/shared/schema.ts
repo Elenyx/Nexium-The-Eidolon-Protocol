@@ -105,10 +105,10 @@ export interface PlayerStats {
 export const insertUserSchema = z.object({
   discordId: z.string(),
   username: z.string(),
-  avatar: z.string().optional(),
-  discriminator: z.string().length(4).optional(),
-  accessToken: z.string().optional(),
-  refreshToken: z.string().optional(),
+  avatar: z.string().nullable().optional(),
+  discriminator: z.string().nullable().optional(), // Can be null for newer Discord accounts
+  accessToken: z.string().nullable().optional(),
+  refreshToken: z.string().nullable().optional(),
 });
 
 export const insertCharacterSchema = z.object({

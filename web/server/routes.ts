@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertForumPostSchema, insertForumReplySchema } from "@shared/schema";
 import { z } from "zod";
+import { randomUUID } from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard stats
@@ -199,12 +200,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Discord OAuth endpoints
   app.get("/api/auth/discord", (req, res) => {
     const clientId = process.env.DISCORD_CLIENT_ID;
+    const clientSecret = process.env.DISCORD_CLIENT_SECRET;
+    
+    if (!clientId || !clientSecret) {
+      console.error("Discord OAuth configuration missing. Please set DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET in your .env file.");
+      return res.status(500).json({ error: "Discord OAuth not configured" });
+    }
+    
     const redirectUri = process.env.DISCORD_REDIRECT_URI || `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'http://localhost:5000'}/api/auth/discord/callback`;
     const scope = "identify email guilds";
     
     const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
     
     res.redirect(authUrl);
+  });
+  
+  // Simple demo login for testing (bypasses Discord OAuth)
+  app.get("/api/auth/demo-login", async (req, res) => {
+    try {
+      // Create a demo user if it doesn't exist
+      const demoUserId = randomUUID();
+      
+      // Create a simple user object
+      const demoUser = {
+        id: demoUserId,
+        username: "Demo User",
+        avatar: null,
+        discordId: "demo-" + Math.floor(Math.random() * 10000),
+        createdAt: new Date().toISOString(),
+        lastActive: new Date().toISOString()
+      };
+      
+      // Return success with user info
+      res.json({ 
+        success: true, 
+        user: demoUser
+      });
+    } catch (error) {
+      console.error("Demo login error:", error);
+      res.status(500).json({ error: "Authentication failed" });
+    }
   });
 
   app.get("/api/auth/discord/callback", async (req, res) => {
@@ -217,6 +252,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const clientId = process.env.DISCORD_CLIENT_ID;
       const clientSecret = process.env.DISCORD_CLIENT_SECRET;
+      
+      if (!clientId || !clientSecret) {
+        console.error("Discord OAuth configuration missing. Please set DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET in your .env file.");
+        return res.status(500).json({ error: "Discord OAuth not configured" });
+      }
+      
       const redirectUri = process.env.DISCORD_REDIRECT_URI || `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'http://localhost:5000'}/api/auth/discord/callback`;
 
       // Exchange code for access token
@@ -256,29 +297,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user exists or create new user
-      let user = await storage.getUserByDiscordId(discordUser.id);
-      
-      if (!user) {
-        user = await storage.createUser({
-          discordId: discordUser.id,
-          username: discordUser.username,
-          avatar: discordUser.avatar,
-          discriminator: discordUser.discriminator,
-          accessToken: tokenData.access_token,
-          refreshToken: tokenData.refresh_token,
-        });
-      } else {
-        // Update existing user with new tokens
-        user = await storage.updateUser(user.id, {
-          accessToken: tokenData.access_token,
-          refreshToken: tokenData.refresh_token,
-          username: discordUser.username,
-          avatar: discordUser.avatar,
-        });
+      let userData;
+      try {
+        // Check if user exists or create new user
+        let user = await storage.getUserByDiscordId(discordUser.id);
+        
+        if (!user) {
+          console.log('Creating new user for Discord ID:', discordUser.id);
+          user = await storage.createUser({
+            discordId: discordUser.id,
+            username: discordUser.username || 'New User',
+            avatar: discordUser.avatar,
+            // discriminator may be null in newer Discord accounts with the new username system
+            discriminator: discordUser.discriminator || null,
+            accessToken: tokenData.access_token,
+            refreshToken: tokenData.refresh_token,
+          });
+          console.log('User created:', user);
+        } else {
+          console.log('Updating existing user with ID:', user.id);
+          // Update existing user with new tokens
+          user = await storage.updateUser(user.id, {
+            accessToken: tokenData.access_token,
+            refreshToken: tokenData.refresh_token,
+            username: discordUser.username || user.username,
+            avatar: discordUser.avatar || user.avatar,
+            // Update discriminator if needed (could be null)
+            discriminator: discordUser.discriminator,
+          });
+          console.log('User updated');
+        }
+        userData = user;
+      } catch (error) {
+        console.error('Error handling Discord user:', error);
+        return res.status(500).json({ error: "Failed to process user data" });
       }
 
       // Redirect to frontend with user info
-      res.redirect(`/?user=${encodeURIComponent(JSON.stringify(user))}`);
+      if (userData) {
+        res.redirect(`/?user=${encodeURIComponent(JSON.stringify(userData))}`);
+      } else {
+        res.redirect('/?error=failed-auth');
+      }
     } catch (error) {
       console.error("Discord OAuth error:", error);
       res.status(500).json({ error: "Authentication failed" });

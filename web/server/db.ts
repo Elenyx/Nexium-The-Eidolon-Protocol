@@ -1,4 +1,5 @@
 import { Pool } from "pg";
+import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 import { log } from "./vite";
@@ -7,7 +8,9 @@ import { log } from "./vite";
 const DEFAULT_DB_PATH = path.resolve(process.cwd(), "../shared/data/nexium.db");
 const dbUrl = process.env.DATABASE_URL || `sqlite:${DEFAULT_DB_PATH}`;
 
-// Ensure the directory exists for SQLite
+// Database connection - either PostgreSQL or SQLite
+let db: any;
+
 if (dbUrl.startsWith("sqlite:")) {
   const dbFilePath = dbUrl.substring(7);
   const dbDir = path.dirname(dbFilePath);
@@ -18,9 +21,14 @@ if (dbUrl.startsWith("sqlite:")) {
   }
   
   log(`Using SQLite database at: ${dbFilePath}`);
+  db = new Database(dbFilePath);
+  
+  // Enable foreign keys for SQLite
+  db.pragma('foreign_keys = ON');
+  
 } else {
   log(`Using PostgreSQL database connection`);
+  db = new Pool({ connectionString: dbUrl });
 }
 
-export const pool = new Pool({ connectionString: dbUrl });
-export const db = pool;
+export { db };

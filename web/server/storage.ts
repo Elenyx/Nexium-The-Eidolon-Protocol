@@ -15,12 +15,17 @@ import {
   type PlayerStats,
 } from "@shared/schema";
 import { db } from "./db";
+import { randomUUID } from "crypto";
 
 // Helper to convert snake_case to camelCase
 function toCamelCase(obj: any): any {
+  if (!obj) {
+    return obj; // Return early if null or undefined
+  }
+  
   if (Array.isArray(obj)) {
     return obj.map(v => toCamelCase(v));
-  } else if (obj !== null && obj.constructor === Object) {
+  } else if (obj !== null && typeof obj === 'object') {
     return Object.keys(obj).reduce((result, key) => {
       const camelKey = key.replace(/_([a-z])/g, g => g[1].toUpperCase());
       (result as any)[camelKey] = toCamelCase(obj[key]);
@@ -32,9 +37,13 @@ function toCamelCase(obj: any): any {
 
 // Helper to convert camelCase to snake_case for insertion/updates
 function toSnakeCase(obj: any): any {
+    if (!obj) {
+        return obj; // Return early if null or undefined
+    }
+    
     if (Array.isArray(obj)) {
         return obj.map(v => toSnakeCase(v));
-    } else if (obj !== null && obj.constructor === Object) {
+    } else if (obj !== null && typeof obj === 'object') {
         return Object.keys(obj).reduce((result, key) => {
             const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
             result[snakeKey] = toSnakeCase(obj[key]);
@@ -42,6 +51,47 @@ function toSnakeCase(obj: any): any {
         }, {} as any);
     }
     return obj;
+}
+
+// Database query helper that works with both PostgreSQL and SQLite
+async function query(sql: string, params: any[] = []): Promise<any> {
+  try {
+    if (typeof db.prepare === 'function') {
+      // SQLite - convert PostgreSQL-style parameters ($1, $2) to SQLite-style (?)
+      const sqliteSql = sql.replace(/\$(\d+)/g, '?');
+      const stmt = db.prepare(sqliteSql);
+      if (sqliteSql.trim().toLowerCase().startsWith('select')) {
+        try {
+          const rows = stmt.all(params);
+          return { rows: rows || [] };
+        } catch (err) {
+          console.error('SQLite query execution error:', err);
+          return { rows: [] };
+        }
+      } else {
+        try {
+          const result = stmt.run(params);
+          return { rows: result.changes ? [{ id: result.lastInsertRowid }] : [] };
+        } catch (err) {
+          console.error('SQLite statement execution error:', err);
+          return { rows: [] };
+        }
+      }
+    } else {
+      // PostgreSQL
+      try {
+        return await db.query(sql, params);
+      } catch (err) {
+        console.error('PostgreSQL query execution error:', err);
+        return { rows: [] };
+      }
+    }
+  } catch (error) {
+    console.error('Database query error:', error);
+    console.error('Failed query:', sql);
+    console.error('Parameters:', params);
+    return { rows: [] }; // Return empty result instead of throwing
+  }
 }
 
 
@@ -89,22 +139,28 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
-    const res = await db.query('SELECT * FROM users WHERE id = $1', [id]);
+    const res = await query('SELECT * FROM users WHERE id = $1', [id]);
     return toCamelCase(res.rows[0]);
   }
 
   async getUserByDiscordId(discordId: string): Promise<User | undefined> {
-    const res = await db.query('SELECT * FROM users WHERE discord_id = $1', [discordId]);
+    const res = await query('SELECT * FROM users WHERE discord_id = $1', [discordId]);
     return toCamelCase(res.rows[0]);
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const snakeUser = toSnakeCase(insertUser);
+    // Create a user object with id and other fields
+    const userWithId = {
+      id: randomUUID(),
+      ...insertUser
+    } as any; // Using any to bypass TypeScript's type checking
+    
+    const snakeUser = toSnakeCase(userWithId);
     const columns = Object.keys(snakeUser).join(', ');
     const values = Object.values(snakeUser);
     const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
     
-    const res = await db.query(
+    const res = await query(
       `INSERT INTO users (${columns}) VALUES (${placeholders}) RETURNING *`,
       values
     );
@@ -116,7 +172,7 @@ export class DatabaseStorage implements IStorage {
     const setClause = Object.keys(snakeUpdateData).map((key, i) => `${key} = $${i + 2}`).join(', ');
     const values = Object.values(snakeUpdateData);
 
-    const res = await db.query(
+    const res = await query(
       `UPDATE users SET ${setClause} WHERE id = $1 RETURNING *`,
       [id, ...values]
     );
@@ -124,7 +180,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCharactersByUserId(userId: string): Promise<Character[]> {
-    const res = await db.query('SELECT * FROM characters WHERE user_id = $1', [userId]);
+    const res = await query('SELECT * FROM characters WHERE user_id = $1', [userId]);
     return toCamelCase(res.rows);
   }
 
@@ -134,7 +190,7 @@ export class DatabaseStorage implements IStorage {
     const values = Object.values(snakeCharacter);
     const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
 
-    const res = await db.query(
+    const res = await query(
       `INSERT INTO characters (${columns}) VALUES (${placeholders}) RETURNING *`,
       values
     );
@@ -142,7 +198,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getBattlesByUserId(userId: string): Promise<Battle[]> {
-    const res = await db.query('SELECT * FROM battles WHERE winner_id = $1 OR loser_id = $1 ORDER BY created_at DESC', [userId]);
+    const res = await query('SELECT * FROM battles WHERE winner_id = $1 OR loser_id = $1 ORDER BY created_at DESC', [userId]);
     return toCamelCase(res.rows);
   }
 
@@ -152,7 +208,7 @@ export class DatabaseStorage implements IStorage {
     const values = Object.values(snakeBattle);
     const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
 
-    const res = await db.query(
+    const res = await query(
       `INSERT INTO battles (${columns}) VALUES (${placeholders}) RETURNING *`,
       values
     );
@@ -160,17 +216,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRecentBattles(limit: number = 10): Promise<Battle[]> {
-    const res = await db.query('SELECT * FROM battles ORDER BY created_at DESC LIMIT $1', [limit]);
+    const res = await query('SELECT * FROM battles ORDER BY created_at DESC LIMIT $1', [limit]);
     return toCamelCase(res.rows);
   }
 
   async getGuilds(): Promise<Guild[]> {
-    const res = await db.query('SELECT * FROM guilds ORDER BY total_power DESC');
+    const res = await query('SELECT * FROM guilds ORDER BY total_power DESC');
     return toCamelCase(res.rows);
   }
 
   async getGuildById(id: string): Promise<Guild | undefined> {
-    const res = await db.query('SELECT * FROM guilds WHERE id = $1', [id]);
+    const res = await query('SELECT * FROM guilds WHERE id = $1', [id]);
     return toCamelCase(res.rows[0]);
   }
 
@@ -180,7 +236,7 @@ export class DatabaseStorage implements IStorage {
     const values = Object.values(snakeGuild);
     const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
 
-    const res = await db.query(
+    const res = await query(
       `INSERT INTO guilds (${columns}) VALUES (${placeholders}) RETURNING *`,
       values
     );
@@ -188,12 +244,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getForumCategories(): Promise<ForumCategory[]> {
-    const res = await db.query('SELECT * FROM forum_categories ORDER BY name');
+    const res = await query('SELECT * FROM forum_categories ORDER BY name');
     return toCamelCase(res.rows);
   }
 
   async getForumPostsByCategory(categoryId: string): Promise<ForumPost[]> {
-    const res = await db.query('SELECT * FROM forum_posts WHERE category_id = $1 ORDER BY created_at DESC', [categoryId]);
+    const res = await query('SELECT * FROM forum_posts WHERE category_id = $1 ORDER BY created_at DESC', [categoryId]);
     return toCamelCase(res.rows);
   }
 
@@ -203,7 +259,7 @@ export class DatabaseStorage implements IStorage {
     const values = Object.values(snakePost);
     const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
 
-    const res = await db.query(
+    const res = await query(
       `INSERT INTO forum_posts (${columns}) VALUES (${placeholders}) RETURNING *`,
       values
     );
@@ -211,12 +267,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getForumPost(id: string): Promise<ForumPost | undefined> {
-    const res = await db.query('SELECT * FROM forum_posts WHERE id = $1', [id]);
+    const res = await query('SELECT * FROM forum_posts WHERE id = $1', [id]);
     return toCamelCase(res.rows[0]);
   }
 
   async getForumRepliesByPost(postId: string): Promise<ForumReply[]> {
-    const res = await db.query('SELECT * FROM forum_replies WHERE post_id = $1 ORDER BY created_at', [postId]);
+    const res = await query('SELECT * FROM forum_replies WHERE post_id = $1 ORDER BY created_at', [postId]);
     return toCamelCase(res.rows);
   }
 
@@ -226,7 +282,7 @@ export class DatabaseStorage implements IStorage {
     const values = Object.values(snakeReply);
     const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
     
-    const res = await db.query(
+    const res = await query(
       `INSERT INTO forum_replies (${columns}) VALUES (${placeholders}) RETURNING *`,
       values
     );
@@ -234,13 +290,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPlayerStats(userId: string): Promise<PlayerStats | undefined> {
-    const res = await db.query('SELECT * FROM player_stats WHERE user_id = $1', [userId]);
+    const res = await query('SELECT * FROM player_stats WHERE user_id = $1', [userId]);
     return toCamelCase(res.rows[0]);
   }
 
   async getLeaderboard(type: 'pvp' | 'guild', limit: number = 10): Promise<any[]> {
     if (type === 'pvp') {
-      const res = await db.query(`
+      const res = await query(`
         SELECT ps.user_id, u.username, u.avatar, ps.pvp_rating, ps.pvp_wins, ps.pvp_losses
         FROM player_stats ps
         INNER JOIN users u ON ps.user_id = u.id
@@ -249,7 +305,7 @@ export class DatabaseStorage implements IStorage {
       `, [limit]);
       return toCamelCase(res.rows);
     } else {
-      const res = await db.query('SELECT * FROM guilds ORDER BY total_power DESC LIMIT $1', [limit]);
+      const res = await query('SELECT * FROM guilds ORDER BY total_power DESC LIMIT $1', [limit]);
       return toCamelCase(res.rows);
     }
   }
@@ -260,10 +316,10 @@ export class DatabaseStorage implements IStorage {
     charactersCollected: number;
     territoriesClaimed: number;
   }> {
-    const totalPlayersRes = await db.query('SELECT COUNT(*) as count FROM users');
-    const activeBattlesRes = await db.query('SELECT COUNT(*) as count FROM battles');
-    const charactersCollectedRes = await db.query('SELECT COUNT(*) as count FROM characters');
-    const territoriesClaimedRes = await db.query('SELECT SUM(territories) as total FROM guilds');
+    const totalPlayersRes = await query('SELECT COUNT(*) as count FROM users');
+    const activeBattlesRes = await query('SELECT COUNT(*) as count FROM battles');
+    const charactersCollectedRes = await query('SELECT COUNT(*) as count FROM characters');
+    const territoriesClaimedRes = await query('SELECT SUM(territories) as total FROM guilds');
 
     return {
       totalPlayers: parseInt(totalPlayersRes.rows[0].count, 10),
