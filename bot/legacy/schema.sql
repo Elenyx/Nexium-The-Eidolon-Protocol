@@ -1,3 +1,5 @@
+-- ARCHIVED: This file is no longer used. See shared migrations.
+
 -- Nexium RPG Database Schema
 
 -- Users table for player profiles
