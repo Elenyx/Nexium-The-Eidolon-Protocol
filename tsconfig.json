@@ -1,0 +1,13 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./web" },
+    { "path": "./bot" },
+  { "path": "./shared/tsconfig.json" }
+  ],
+  "include": [
+    "web/**/*",
+    "bot/**/*",
+    "shared/**/*"
+  ]
+}
