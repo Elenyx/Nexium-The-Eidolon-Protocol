@@ -2,22 +2,28 @@
   "$schema": "https://schema.railpack.com",
   "steps": [
     {
-      "name": "root-install",
+      "name": "install-root",
       "commands": [
-        "npm ci"
+        "rm -rf node_modules/.cache || true",
+        "npm_config_cache=/root/.npm npm ci --no-audit --no-fund"
       ]
     },
     {
-      "name": "build-workspaces",
+      "name": "build-bot",
       "commands": [
-        "npm run build --workspace=bot",
+        "npm_config_cache=/root/.npm npm run build --workspace=bot"
+      ]
+    },
+    {
+      "name": "build-web",
+      "commands": [
         "npm run build --workspace=web"
       ]
     },
     {
-      "name": "start",
+      "name": "start-bot",
       "commands": [
-        "npm run start --workspace=web"
+        "npm run start --workspace=bot"
       ]
     }
   ]
