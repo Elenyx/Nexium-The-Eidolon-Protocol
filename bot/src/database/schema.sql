@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Eidolons table for collectible entities
 CREATE TABLE IF NOT EXISTS eidolons (
     id SERIAL PRIMARY KEY,
+    code VARCHAR(12) UNIQUE,
     name VARCHAR(100) NOT NULL,
     rarity VARCHAR(10) NOT NULL CHECK (rarity IN ('C', 'UC', 'R', 'SR', 'SSR')),
     element VARCHAR(20) NOT NULL,
@@ -30,6 +31,16 @@ CREATE TABLE IF NOT EXISTS eidolons (
     skill_description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE OR REPLACE FUNCTION set_eidolon_code() RETURNS trigger AS $$
+BEGIN
+    UPDATE eidolons SET code = 'ED' || LPAD(NEW.id::text, 2, '0') WHERE id = NEW.id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER eidolons_set_code AFTER INSERT ON eidolons
+FOR EACH ROW EXECUTE FUNCTION set_eidolon_code();
 
 -- User Eidolons - player's collected Eidolons
 CREATE TABLE IF NOT EXISTS user_eidolons (
@@ -47,6 +58,7 @@ CREATE TABLE IF NOT EXISTS user_eidolons (
 -- Items and equipment
 CREATE TABLE IF NOT EXISTS items (
     id SERIAL PRIMARY KEY,
+    code VARCHAR(16) UNIQUE,
     name VARCHAR(100) NOT NULL,
     type VARCHAR(50) NOT NULL, -- 'tuner', 'material', 'equipment', 'consumable'
     subtype VARCHAR(50),
@@ -58,6 +70,16 @@ CREATE TABLE IF NOT EXISTS items (
     stats JSONB, -- Flexible stats storage
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE OR REPLACE FUNCTION set_item_code() RETURNS trigger AS $$
+BEGIN
+    UPDATE items SET code = 'ITEM' || LPAD(NEW.id::text, 2, '0') WHERE id = NEW.id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER items_set_code AFTER INSERT ON items
+FOR EACH ROW EXECUTE FUNCTION set_item_code();
 
 -- User inventory
 CREATE TABLE IF NOT EXISTS user_items (
@@ -96,6 +118,7 @@ CREATE TABLE IF NOT EXISTS syndicate_members (
 -- Combat encounters and puzzles
 CREATE TABLE IF NOT EXISTS encounters (
     id SERIAL PRIMARY KEY,
+    code VARCHAR(12) UNIQUE,
     name VARCHAR(100) NOT NULL,
     type VARCHAR(50) DEFAULT 'glitch', -- 'glitch', 'anomaly', 'boss'
     location VARCHAR(100),
@@ -105,6 +128,16 @@ CREATE TABLE IF NOT EXISTS encounters (
     rewards JSONB, -- Flexible rewards structure
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE OR REPLACE FUNCTION set_encounter_code() RETURNS trigger AS $$
+BEGIN
+    UPDATE encounters SET code = 'EC' || LPAD(NEW.id::text, 2, '0') WHERE id = NEW.id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER encounters_set_code AFTER INSERT ON encounters
+FOR EACH ROW EXECUTE FUNCTION set_encounter_code();
 
 -- Market listings
 CREATE TABLE IF NOT EXISTS market_listings (
