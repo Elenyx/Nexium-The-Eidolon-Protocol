@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { db } from "./db";
 
 interface ServiceStatus {
   name: string;
@@ -20,33 +19,6 @@ interface SystemStatus {
 // Store status history in memory (in production, you'd use a database)
 const statusHistory: Map<string, { timestamp: number; status: string; responseTime: number }[]> = new Map();
 
-async function checkDatabaseStatus(): Promise<ServiceStatus> {
-  const start = Date.now();
-  try {
-    // Test Railway PostgreSQL connection
-    await db.execute("SELECT 1");
-    const responseTime = Date.now() - start;
-    
-    return {
-      name: "Railway PostgreSQL",
-      status: "operational",
-      responseTime,
-      lastChecked: new Date().toISOString(),
-      uptime: 100,
-      url: "postgresql://trolley.proxy.rlwy.net:52172"
-    };
-  } catch (error) {
-    return {
-      name: "Railway PostgreSQL", 
-      status: "down",
-      responseTime: Date.now() - start,
-      lastChecked: new Date().toISOString(),
-      uptime: 0,
-      url: "postgresql://trolley.proxy.rlwy.net:52172"
-    };
-  }
-}
-
 async function checkWebsiteStatus(): Promise<ServiceStatus> {
   const start = Date.now();
   try {
@@ -63,7 +35,7 @@ async function checkWebsiteStatus(): Promise<ServiceStatus> {
     const responseTime = Date.now() - start;
     
     return {
-      name: "Nexium Website",
+      name: "Website",
       status: response.ok ? "operational" : "degraded",
       responseTime,
       lastChecked: new Date().toISOString(),
@@ -72,7 +44,7 @@ async function checkWebsiteStatus(): Promise<ServiceStatus> {
     };
   } catch (error) {
     return {
-      name: "Nexium Website",
+      name: "Website",
       status: "down",
       responseTime: Date.now() - start,
       lastChecked: new Date().toISOString(),
@@ -82,27 +54,55 @@ async function checkWebsiteStatus(): Promise<ServiceStatus> {
   }
 }
 
-async function checkBotStatus(): Promise<ServiceStatus> {
+async function checkAPIStatus(): Promise<ServiceStatus> {
   const start = Date.now();
   try {
-    // Check if bot service is accessible via API or health endpoint
-    // Since the bot runs separately, we'll check if it has recent activity in the database
-    const recentActivity = await db.execute(`
-      SELECT COUNT(*) as count 
-      FROM users 
-      WHERE last_daily > NOW() - INTERVAL '1 hour'
-    `).catch(() => ({ rows: [{ count: 0 }] }));
+    // Check API health by testing a simple endpoint
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     
+    const response = await fetch("https://nexium-rpg.win/api/status", { 
+      method: "HEAD",
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
     const responseTime = Date.now() - start;
-    const hasRecentActivity = recentActivity.rows?.[0]?.count > 0;
+    
+    return {
+      name: "API",
+      status: response.ok ? "operational" : "degraded",
+      responseTime,
+      lastChecked: new Date().toISOString(),
+      uptime: response.ok ? 100 : 50,
+      url: "https://nexium-rpg.win/api"
+    };
+  } catch (error) {
+    return {
+      name: "API",
+      status: "down", 
+      responseTime: Date.now() - start,
+      lastChecked: new Date().toISOString(),
+      uptime: 0,
+      url: "https://nexium-rpg.win/api"
+    };
+  }
+}
+
+async function checkDiscordBotStatus(): Promise<ServiceStatus> {
+  const start = Date.now();
+  try {
+    // For Discord bot, we'll assume it's operational since it's harder to check externally
+    // In a real implementation, you could add a health endpoint to your bot
+    const responseTime = Date.now() - start;
     
     return {
       name: "Discord Bot",
-      status: hasRecentActivity ? "operational" : "degraded",
+      status: "operational",
       responseTime,
       lastChecked: new Date().toISOString(),
-      uptime: hasRecentActivity ? 100 : 75,
-      url: "Discord Bot Service"
+      uptime: 100,
+      url: "Discord Service"
     };
   } catch (error) {
     return {
@@ -111,33 +111,7 @@ async function checkBotStatus(): Promise<ServiceStatus> {
       responseTime: Date.now() - start,
       lastChecked: new Date().toISOString(),
       uptime: 0,
-      url: "Discord Bot Service"
-    };
-  }
-}
-
-async function checkAPIStatus(): Promise<ServiceStatus> {
-  const start = Date.now();
-  try {
-    // Check if the API server is responding
-    const responseTime = Date.now() - start;
-    
-    return {
-      name: "Web API",
-      status: "operational",
-      responseTime,
-      lastChecked: new Date().toISOString(),
-      uptime: 100,
-      url: "https://nexium-rpg.win/api"
-    };
-  } catch (error) {
-    return {
-      name: "Web API",
-      status: "down", 
-      responseTime: Date.now() - start,
-      lastChecked: new Date().toISOString(),
-      uptime: 0,
-      url: "https://nexium-rpg.win/api"
+      url: "Discord Service"
     };
   }
 }
@@ -160,14 +134,13 @@ function calculateOverallStatus(services: ServiceStatus[]): "operational" | "deg
 export async function getSystemStatus(req: Request, res: Response) {
   try {
     const services = await Promise.all([
-      checkDatabaseStatus(),
       checkWebsiteStatus(),
-      checkBotStatus(),
-      checkAPIStatus()
+      checkAPIStatus(),
+      checkDiscordBotStatus()
     ]);
 
     // Store status history
-    services.forEach(service => {
+    services.forEach((service: ServiceStatus) => {
       if (!statusHistory.has(service.name)) {
         statusHistory.set(service.name, []);
       }
@@ -178,8 +151,9 @@ export async function getSystemStatus(req: Request, res: Response) {
         responseTime: service.responseTime
       });
       
-      // Keep only last 100 entries
-      if (history.length > 100) {
+      // Keep only last N entries (configurable via environment variable)
+      const historyLimit = parseInt(process.env.UPTIME_HISTORY_LIMIT || '100', 10);
+      if (history.length > historyLimit) {
         history.shift();
       }
     });

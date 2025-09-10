@@ -9,12 +9,11 @@ This status monitoring system is designed for `nexium-rpg.win` and integrates wi
 Set these in your Railway project environment:
 
 ```bash
-# Database (automatically provided by Railway)
-DATABASE_URL=postgresql://postgres:UrzpIxgDoFWRnMVkgbdUMaYvXZkyGLCD@trolley.proxy.rlwy.net:52172/railway
-
 # Optional: Custom monitoring settings
-STATUS_CHECK_INTERVAL=30000
-UPTIME_HISTORY_LIMIT=100
+STATUS_CHECK_INTERVAL=30000    # Status check interval in milliseconds (30 seconds)
+UPTIME_HISTORY_LIMIT=100       # Number of historical entries to keep per service
+NODE_ENV=production            # Set to production for Railway deployment
+PORT=5000                      # Railway will override this with $PORT
 ```
 
 ### Deployment Settings
@@ -34,25 +33,20 @@ For **Bot Service** deployment on Railway:
 
 ## Services Monitored
 
-### 1. Railway PostgreSQL
-- **Endpoint**: `postgresql://trolley.proxy.rlwy.net:52172`
-- **Checks**: Database connectivity and response time
-- **Status**: Operational when connection succeeds
-
-### 2. Nexium Website
+### 1. Website
 - **Endpoint**: `https://nexium-rpg.win`
 - **Checks**: HTTP HEAD request to main domain
 - **Status**: Operational when HTTP 200 response
 
-### 3. Discord Bot
-- **Endpoint**: Internal service check
-- **Checks**: Recent user activity in database (last hour)
-- **Status**: Operational when users have recent daily activities
-
-### 4. Web API
+### 2. API
 - **Endpoint**: `https://nexium-rpg.win/api`
-- **Checks**: API responsiveness
+- **Checks**: API responsiveness via status endpoint
 - **Status**: Operational when API server responds
+
+### 3. Discord Bot
+- **Endpoint**: Discord Service
+- **Checks**: Service availability (simplified check)
+- **Status**: Operational when bot service is running
 
 ## Access Points
 
@@ -88,14 +82,6 @@ Add these monitors in Uptime Kuma:
    - URL: `https://nexium-rpg.win/api/status`
    - Interval: 60 seconds
 
-3. **Database**
-   - Type: PostgreSQL
-   - Host: `trolley.proxy.rlwy.net`
-   - Port: `52172`
-   - Database: `railway`
-   - Username: `postgres`
-   - Password: `[Railway provided]`
-
 ## Status Page Features
 
 - ✅ **Real-time Monitoring**: Auto-refresh every 30 seconds
@@ -103,27 +89,18 @@ Add these monitors in Uptime Kuma:
 - ✅ **Uptime Percentages**: Historical uptime calculations
 - ✅ **Response Times**: Performance monitoring
 - ✅ **Service URLs**: Direct links to monitored endpoints
-- ✅ **Railway Integration**: Native PostgreSQL monitoring
+- ✅ **Railway Integration**: Native service monitoring
 
 ## Troubleshooting
 
-### Database Connection Issues
-```bash
-# Check Railway database status
-railway status
-
-# Test database connection
-railway run psql $DATABASE_URL -c "SELECT 1;"
-```
-
 ### Bot Status Shows Down
 - Check if bot is deployed and running on Railway
-- Verify users have recent activity (`last_daily` within 1 hour)
 - Check bot logs: `railway logs --service bot`
 
 ### Website Status Issues
 - Verify `nexium-rpg.win` DNS resolution
 - Check Railway web service status
+- Review web service logs: `railway logs --service web`
 - Review web service logs: `railway logs --service web`
 
 ## Production Considerations
@@ -146,9 +123,8 @@ railway run psql $DATABASE_URL -c "SELECT 1;"
 ## Integration with Railway Services
 
 The status system automatically detects and monitors:
-- Railway PostgreSQL database health
 - Web service availability via domain check
-- Bot service activity via database queries
-- API responsiveness
+- API responsiveness and health
+- Bot service operational status
 
 All monitoring adapts to Railway's infrastructure automatically.

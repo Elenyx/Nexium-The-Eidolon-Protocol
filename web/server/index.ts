@@ -69,6 +69,8 @@ app.use((req, res, next) => {
     log(`Server running at http://localhost:${port}`);
     
     // Start uptime monitoring after server is ready
-    uptimeMonitor.start(30000); // Check every 30 seconds
+    // Use environment variable or default to 30 seconds
+    const checkInterval = parseInt(process.env.STATUS_CHECK_INTERVAL || '30000', 10);
+    uptimeMonitor.start(checkInterval);
   });
 })();
