@@ -62,38 +62,6 @@ try {
     )
   `);
 
-  // Forum categories
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS forum_categories (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      description TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
-
-  // Forum posts
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS forum_posts (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      category_id INTEGER REFERENCES forum_categories(id),
-      author_id TEXT REFERENCES users(id),
-      title TEXT NOT NULL,
-      content TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
-
-  // Forum replies
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS forum_replies (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      post_id INTEGER REFERENCES forum_posts(id),
-      author_id TEXT REFERENCES users(id),
-      content TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
 
   // Player stats
   db.exec(`
@@ -109,24 +77,9 @@ try {
     )
   `);
 
-  // Insert some default forum categories
-  const categories = [
-    { name: 'General Discussion', description: 'General chat about the game' },
-    { name: 'Strategy', description: 'Share your strategies and tactics' },
-    { name: 'Bug Reports', description: 'Report bugs and issues' },
-    { name: 'Suggestions', description: 'Suggest new features and improvements' }
-  ];
-
-  const insertCategory = db.prepare(`
-    INSERT OR IGNORE INTO forum_categories (name, description) VALUES (?, ?)
-  `);
-
-  for (const category of categories) {
-    insertCategory.run(category.name, category.description);
-  }
 
   console.log('Database initialized successfully!');
-  console.log('Created tables: users, characters, battles, guilds, forum_categories, forum_posts, forum_replies, player_stats');
+  console.log('Created tables: users, characters, battles, guilds, player_stats');
 
 } catch (error) {
   console.error('Error initializing database:', error);

@@ -20,9 +20,6 @@ async function recreateSchema() {
     console.log('Dropping existing tables...');
     await client.query(`
       DROP TABLE IF EXISTS player_stats CASCADE;
-      DROP TABLE IF EXISTS forum_replies CASCADE;
-      DROP TABLE IF EXISTS forum_posts CASCADE;
-      DROP TABLE IF EXISTS forum_categories CASCADE;
       DROP TABLE IF EXISTS characters CASCADE;
       DROP TABLE IF EXISTS battles CASCADE;
       DROP TABLE IF EXISTS guilds CASCADE;
@@ -83,36 +80,7 @@ async function recreateSchema() {
       )
     `);
     
-    console.log('Creating forum tables...');
-    await client.query(`
-      CREATE TABLE forum_categories (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        description TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    
-    await client.query(`
-      CREATE TABLE forum_posts (
-        id SERIAL PRIMARY KEY,
-        category_id INTEGER REFERENCES forum_categories(id),
-        author_id TEXT REFERENCES users(id),
-        title TEXT NOT NULL,
-        content TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    
-    await client.query(`
-      CREATE TABLE forum_replies (
-        id SERIAL PRIMARY KEY,
-        post_id INTEGER REFERENCES forum_posts(id),
-        author_id TEXT REFERENCES users(id),
-        content TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+  // forum tables removed
     
     console.log('Creating player_stats table...');
     await client.query(`
@@ -128,21 +96,7 @@ async function recreateSchema() {
       )
     `);
     
-    // Insert some default forum categories
-    console.log('Adding default forum categories...');
-    const categories = [
-      { name: 'General Discussion', description: 'General chat about the game' },
-      { name: 'Strategy', description: 'Share your strategies and tactics' },
-      { name: 'Bug Reports', description: 'Report bugs and issues' },
-      { name: 'Suggestions', description: 'Suggest new features and improvements' }
-    ];
-    
-    for (const category of categories) {
-      await client.query(`
-        INSERT INTO forum_categories (name, description) 
-        VALUES ($1, $2)
-      `, [category.name, category.description]);
-    }
+  // default forum categories removed
     
     // Commit the transaction
     await client.query('COMMIT');

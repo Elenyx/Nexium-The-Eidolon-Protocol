@@ -18,8 +18,8 @@ console.log('Connecting to PostgreSQL database...');
 
 async function initPostgresDB() {
   try {
-    // Drop existing tables if any to avoid foreign key issues
-    await pool.query(`DROP TABLE IF EXISTS characters, battles, guilds, forum_replies, forum_posts, forum_categories, player_stats CASCADE`);
+  // Drop existing tables if any to avoid foreign key issues
+  await pool.query(`DROP TABLE IF EXISTS characters, battles, guilds, player_stats CASCADE`);
     
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -71,35 +71,6 @@ async function initPostgresDB() {
       )
     `);
 
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS forum_categories (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        description TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS forum_posts (
-        id SERIAL PRIMARY KEY,
-        category_id INTEGER REFERENCES forum_categories(id),
-        author_id TEXT REFERENCES users(id),
-        title TEXT NOT NULL,
-        content TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS forum_replies (
-        id SERIAL PRIMARY KEY,
-        post_id INTEGER REFERENCES forum_posts(id),
-        author_id TEXT REFERENCES users(id),
-        content TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
 
     await pool.query(`
       CREATE TABLE IF NOT EXISTS player_stats (
@@ -114,21 +85,7 @@ async function initPostgresDB() {
       )
     `);
 
-    // Insert some default forum categories
-    const categories = [
-      { name: 'General Discussion', description: 'General chat about the game' },
-      { name: 'Strategy', description: 'Share your strategies and tactics' },
-      { name: 'Bug Reports', description: 'Report bugs and issues' },
-      { name: 'Suggestions', description: 'Suggest new features and improvements' }
-    ];
-
-    for (const category of categories) {
-      await pool.query(`
-        INSERT INTO forum_categories (name, description) 
-        VALUES ($1, $2) 
-        ON CONFLICT (name) DO NOTHING
-      `, [category.name, category.description]);
-    }
+  // No forum tables or default categories are created
 
     // Migrate data from SQLite if needed
     await migrateFromSQLite();

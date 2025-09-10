@@ -92,9 +92,6 @@ async function migrateData() {
       'characters',
       'battles',
       'guilds',
-      'forum_categories',
-      'forum_posts',
-      'forum_replies',
       'player_stats'
     ];
     

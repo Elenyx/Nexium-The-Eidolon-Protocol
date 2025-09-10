@@ -67,3 +67,24 @@ async function main() {
 }
 
 main();
+
+// Grant privileges for web user
+    const webUser = 'web_user';
+    const webPassword = genPassword(24);
+
+    await client.query(`DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${webUser}') THEN
+    CREATE ROLE ${webUser} WITH LOGIN PASSWORD '${webPassword}';
+  ELSE
+    ALTER ROLE ${webUser} WITH PASSWORD '${webPassword}';
+  END IF;
+END$$;`);
+    console.log(`Created/updated role '${webUser}'`);
+
+    // Grant privileges for web user
+    await client.query(`GRANT CONNECT ON DATABASE "${dbName}" TO ${webUser};`);
+    await client.query(`GRANT USAGE ON SCHEMA public TO ${webUser};`);
+    await client.query(`GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO ${webUser};`);
+    await client.query(`ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE ON TABLES TO ${webUser};`);
+    console.log('Granted CONNECT/USAGE/SELECT/INSERT/UPDATE privileges to web user');

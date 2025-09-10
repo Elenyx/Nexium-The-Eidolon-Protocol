@@ -7,11 +7,7 @@ import {
   type InsertBattle,
   type Guild,
   type InsertGuild,
-  type ForumCategory,
-  type ForumPost,
-  type InsertForumPost,
-  type ForumReply,
-  type InsertForumReply,
+  // forum types removed
   type PlayerStats,
 } from "@shared/schema";
 import { db } from "./db";
@@ -116,13 +112,7 @@ export interface IStorage {
   getGuildById(id: string): Promise<Guild | undefined>;
   createGuild(guild: InsertGuild): Promise<Guild>;
   
-  // Forum operations
-  getForumCategories(): Promise<ForumCategory[]>;
-  getForumPostsByCategory(categoryId: string): Promise<ForumPost[]>;
-  createForumPost(post: InsertForumPost): Promise<ForumPost>;
-  getForumPost(id: string): Promise<ForumPost | undefined>;
-  getForumRepliesByPost(postId: string): Promise<ForumReply[]>;
-  createForumReply(reply: InsertForumReply): Promise<ForumReply>;
+  // (forum operations removed)
   
   // Stats operations
   getPlayerStats(userId: string): Promise<PlayerStats | undefined>;
@@ -238,52 +228,6 @@ export class DatabaseStorage implements IStorage {
 
     const res = await query(
       `INSERT INTO guilds (${columns}) VALUES (${placeholders}) RETURNING *`,
-      values
-    );
-    return toCamelCase(res.rows[0]);
-  }
-
-  async getForumCategories(): Promise<ForumCategory[]> {
-    const res = await query('SELECT * FROM forum_categories ORDER BY name');
-    return toCamelCase(res.rows);
-  }
-
-  async getForumPostsByCategory(categoryId: string): Promise<ForumPost[]> {
-    const res = await query('SELECT * FROM forum_posts WHERE category_id = $1 ORDER BY created_at DESC', [categoryId]);
-    return toCamelCase(res.rows);
-  }
-
-  async createForumPost(post: InsertForumPost): Promise<ForumPost> {
-    const snakePost = toSnakeCase(post);
-    const columns = Object.keys(snakePost).join(', ');
-    const values = Object.values(snakePost);
-    const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
-
-    const res = await query(
-      `INSERT INTO forum_posts (${columns}) VALUES (${placeholders}) RETURNING *`,
-      values
-    );
-    return toCamelCase(res.rows[0]);
-  }
-
-  async getForumPost(id: string): Promise<ForumPost | undefined> {
-    const res = await query('SELECT * FROM forum_posts WHERE id = $1', [id]);
-    return toCamelCase(res.rows[0]);
-  }
-
-  async getForumRepliesByPost(postId: string): Promise<ForumReply[]> {
-    const res = await query('SELECT * FROM forum_replies WHERE post_id = $1 ORDER BY created_at', [postId]);
-    return toCamelCase(res.rows);
-  }
-
-  async createForumReply(reply: InsertForumReply): Promise<ForumReply> {
-    const snakeReply = toSnakeCase(reply);
-    const columns = Object.keys(snakeReply).join(', ');
-    const values = Object.values(snakeReply);
-    const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
-    
-    const res = await query(
-      `INSERT INTO forum_replies (${columns}) VALUES (${placeholders}) RETURNING *`,
       values
     );
     return toCamelCase(res.rows[0]);

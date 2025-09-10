@@ -56,38 +56,6 @@ export interface GuildMember {
   joinedAt: Date;
 }
 
-export interface ForumCategory {
-  id: string;
-  name: string;
-  description: string | null;
-  icon: string | null;
-  postCount: number;
-  createdAt: Date;
-}
-
-export interface ForumPost {
-  id: string;
-  title: string;
-  content: string;
-  authorId: string | null;
-  categoryId: string | null;
-  isPinned: boolean;
-  isLocked: boolean;
-  replyCount: number;
-  lastReplyAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface ForumReply {
-  id: string;
-  content: string;
-  authorId: string | null;
-  postId: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface PlayerStats {
   id: string;
   userId: string | null;
@@ -137,25 +105,9 @@ export const insertGuildSchema = z.object({
   leaderId: z.string().optional(),
 });
 
-export const insertForumPostSchema = z.object({
-  title: z.string(),
-  content: z.string(),
-  authorId: z.string(),
-  categoryId: z.string(),
-  isPinned: z.boolean().default(false),
-  isLocked: z.boolean().default(false),
-});
-
-export const insertForumReplySchema = z.object({
-  content: z.string(),
-  authorId: z.string(),
-  postId: z.string(),
-});
-
 // Types inferred from Zod schemas
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertCharacter = z.infer<typeof insertCharacterSchema>;
 export type InsertBattle = z.infer<typeof insertBattleSchema>;
 export type InsertGuild = z.infer<typeof insertGuildSchema>;
-export type InsertForumPost = z.infer<typeof insertForumPostSchema>;
-export type InsertForumReply = z.infer<typeof insertForumReplySchema>;
+// forum-related types removed

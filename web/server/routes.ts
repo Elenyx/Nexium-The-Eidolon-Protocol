@@ -1,8 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertForumPostSchema, insertForumReplySchema } from "@shared/schema";
-import { z } from "zod";
 import { randomUUID } from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -88,77 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Forum routes
-  app.get("/api/forum/categories", async (req, res) => {
-    try {
-      const categories = await storage.getForumCategories();
-      res.json(categories);
-    } catch (error) {
-      console.error("Error fetching forum categories:", error);
-      res.status(500).json({ error: "Failed to fetch forum categories" });
-    }
-  });
 
-  app.get("/api/forum/posts/:categoryId", async (req, res) => {
-    try {
-      const posts = await storage.getForumPostsByCategory(req.params.categoryId);
-      res.json(posts);
-    } catch (error) {
-      console.error("Error fetching forum posts:", error);
-      res.status(500).json({ error: "Failed to fetch forum posts" });
-    }
-  });
-
-  app.post("/api/forum/posts", async (req, res) => {
-    try {
-      const validatedData = insertForumPostSchema.parse(req.body);
-      const post = await storage.createForumPost(validatedData);
-      res.status(201).json(post);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: "Invalid post data", details: error.errors });
-      }
-      console.error("Error creating forum post:", error);
-      res.status(500).json({ error: "Failed to create forum post" });
-    }
-  });
-
-  app.get("/api/forum/post/:id", async (req, res) => {
-    try {
-      const post = await storage.getForumPost(req.params.id);
-      if (!post) {
-        return res.status(404).json({ error: "Post not found" });
-      }
-      res.json(post);
-    } catch (error) {
-      console.error("Error fetching forum post:", error);
-      res.status(500).json({ error: "Failed to fetch forum post" });
-    }
-  });
-
-  app.get("/api/forum/replies/:postId", async (req, res) => {
-    try {
-      const replies = await storage.getForumRepliesByPost(req.params.postId);
-      res.json(replies);
-    } catch (error) {
-      console.error("Error fetching forum replies:", error);
-      res.status(500).json({ error: "Failed to fetch forum replies" });
-    }
-  });
-
-  app.post("/api/forum/replies", async (req, res) => {
-    try {
-      const validatedData = insertForumReplySchema.parse(req.body);
-      const reply = await storage.createForumReply(validatedData);
-      res.status(201).json(reply);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: "Invalid reply data", details: error.errors });
-      }
-      console.error("Error creating forum reply:", error);
-      res.status(500).json({ error: "Failed to create forum reply" });
-    }
-  });
 
   // Leaderboard routes
   app.get("/api/leaderboard/pvp", async (req, res) => {
