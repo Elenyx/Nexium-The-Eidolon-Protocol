@@ -52,6 +52,8 @@ CREATE TABLE IF NOT EXISTS items (
     subtype VARCHAR(50),
     rarity VARCHAR(10) NOT NULL CHECK (rarity IN ('Unstable', 'Stable', 'Optimized', 'Flawless')),
     description TEXT,
+    -- Emoji or short icon string for richer UI displays (optional)
+    icon VARCHAR(50),
     base_value INTEGER DEFAULT 0,
     stats JSONB, -- Flexible stats storage
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -160,13 +162,13 @@ INSERT INTO eidolons (name, rarity, element, description, lore, base_attack, bas
 ('Static, the Interference', 'C', 'Electric', 'Basic electrical anomaly found throughout the city', 'Simple manifestation of electromagnetic disturbance. Common but useful for basic tasks and early training.', 80, 90, 110, 'Electric Jolt', 'Quick electric attack that can paralyze weak enemies');
 
 -- Insert base items
-INSERT INTO items (name, type, subtype, rarity, description, base_value, stats) VALUES
-('Basic Tuner', 'tuner', 'standard', 'Stable', 'Standard device for attuning to Eidolons', 100, '{}'),
-('Advanced Tuner', 'tuner', 'enhanced', 'Optimized', 'Enhanced tuner with better Eidolon detection', 500, '{"success_rate": 1.2}'),
-('Resonance Crystal', 'material', 'crafting', 'Stable', 'Basic crafting material found throughout Neo-Avalon', 50, '{}'),
-('Void Fragment', 'material', 'crafting', 'Optimized', 'Rare material from dimensional tears', 200, '{"void_affinity": true}'),
-('Data Core', 'equipment', 'processor', 'Stable', 'Enhances digital-based Eidolon abilities', 300, '{"data_boost": 15}'),
-('Neural Amplifier', 'equipment', 'enhancement', 'Optimized', 'Increases sync ratio gain with Eidolons', 800, '{"sync_boost": 25}');
+INSERT INTO items (name, type, subtype, rarity, description, icon, base_value, stats) VALUES
+('Basic Tuner', 'tuner', 'standard', 'Stable', 'Standard device for attuning to Eidolons', '🔧', 100, '{}'),
+('Advanced Tuner', 'tuner', 'enhanced', 'Optimized', 'Enhanced tuner with better Eidolon detection', '🛠️', 500, '{"success_rate": 1.2}'),
+('Resonance Crystal', 'material', 'crafting', 'Stable', 'Basic crafting material found throughout Neo-Avalon', '🔮', 50, '{}'),
+('Void Fragment', 'material', 'crafting', 'Optimized', 'Rare material from dimensional tears', '🌌', 200, '{"void_affinity": true}'),
+('Data Core', 'equipment', 'processor', 'Stable', 'Enhances digital-based Eidolon abilities', '💾', 300, '{"data_boost": 15}'),
+('Neural Amplifier', 'equipment', 'enhancement', 'Optimized', 'Increases sync ratio gain with Eidolons', '🧠', 800, '{"sync_boost": 25}');
 
 -- Insert sample encounters
 INSERT INTO encounters (name, type, location, difficulty, weakness_pattern, weakness_hint, rewards) VALUES

@@ -155,12 +155,16 @@ export class ComponentBuilder {
       for (const r of detailed) if (r.type === 'item' && r.id) itemIds.push(r.id);
 
       let nameById: Record<number, string> = {};
+      let iconById: Record<number, string> = {};
       if (itemIds.length > 0) {
         try {
-          const res = await pool.query('SELECT id, name FROM items WHERE id = ANY($1)', [itemIds]);
-          for (const row of res.rows) nameById[row.id] = row.name;
+          const res = await pool.query('SELECT id, name, icon FROM items WHERE id = ANY($1)', [itemIds]);
+          for (const row of res.rows) {
+            nameById[row.id] = row.name;
+            if (row.icon) iconById[row.id] = row.icon;
+          }
         } catch (err) {
-          console.error('Failed to resolve item names:', err);
+          console.error('Failed to resolve item names/icons:', err);
         }
       }
 
@@ -169,13 +173,15 @@ export class ComponentBuilder {
         else if (r.type === 'experience') rewardDisplays.push(`⭐ XP: +${r.amount}`);
         else if (r.type === 'item') {
           const name = r.name || nameById[r.id] || `Item ${r.id}`;
+          const icon = iconById[r.id] ? `${iconById[r.id]} ` : '';
           const qty = r.quantity ?? 1;
-          rewardDisplays.push(`📦 ${name} x${qty}`);
+          rewardDisplays.push(`${icon}📦 ${name} x${qty}`);
         } else if (r.type === 'tuner') {
           const awarded = r.awarded ? ' (awarded)' : '';
           const chanceText = r.chance ? ` (${Math.round(r.chance * 100)}% chance)` : '';
           const name = r.name || 'Tuner';
-          rewardDisplays.push(`🎛️ ${name}${awarded}${chanceText}`);
+          const icon = r.icon ? `${r.icon} ` : '';
+          rewardDisplays.push(`${icon}🎛️ ${name}${awarded}${chanceText}`);
         } else {
           rewardDisplays.push(JSON.stringify(r));
         }
