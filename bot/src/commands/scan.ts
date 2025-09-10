@@ -40,7 +40,7 @@ export default {
         components: [
           {
             type: 10, // TextDisplay
-            content: `🔍 **Enemy Analysis Complete**\n\n**Weakness Detected:**\n*${hint}*\n\nUse \`/weave [pattern]\` to exploit this weakness!`
+            content: `${hint}\n\n� **Pro Tip:** Pattern matching is case-insensitive. Use spaces around operators (AND, OR, NOT).\n\n🎯 **Ready to weave?** Use \`/weave [your pattern]\` to attempt the solution!`
           }
         ],
         flags: MessageFlags.Ephemeral | MessageFlags.IsComponentsV2
