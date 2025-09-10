@@ -169,19 +169,34 @@ export class DatabaseStorage implements IStorage {
     return toCamelCase(res.rows[0]);
   }
 
+  // Characters operations (mapped to user_eidolons in bot schema)
   async getCharactersByUserId(userId: string): Promise<Character[]> {
-    const res = await query('SELECT * FROM characters WHERE user_id = $1', [userId]);
+    const res = await query(`
+      SELECT ue.*, e.name as eidolon_name, e.rarity, e.element 
+      FROM user_eidolons ue 
+      JOIN eidolons e ON ue.eidolon_id = e.id 
+      WHERE ue.user_id = $1
+    `, [userId]);
     return toCamelCase(res.rows);
   }
 
   async createCharacter(character: InsertCharacter): Promise<Character> {
-    const snakeCharacter = toSnakeCase(character);
-    const columns = Object.keys(snakeCharacter).join(', ');
-    const values = Object.values(snakeCharacter);
+    // Map to user_eidolons table structure
+    const eidolonData = {
+      user_id: character.userId,
+      eidolon_id: 1, // Default to first eidolon - this should be selected by user in real app
+      level: character.level || 1,
+      experience: character.experience || 0,
+      sync_ratio: character.power || 0.0,
+      ascension_level: 0
+    };
+    
+    const columns = Object.keys(eidolonData).join(', ');
+    const values = Object.values(eidolonData);
     const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
 
     const res = await query(
-      `INSERT INTO characters (${columns}) VALUES (${placeholders}) RETURNING *`,
+      `INSERT INTO user_eidolons (${columns}) VALUES (${placeholders}) RETURNING *`,
       values
     );
     return toCamelCase(res.rows[0]);
@@ -210,24 +225,34 @@ export class DatabaseStorage implements IStorage {
     return toCamelCase(res.rows);
   }
 
+  // Guild operations (mapped to syndicates in bot schema)
   async getGuilds(): Promise<Guild[]> {
-    const res = await query('SELECT * FROM guilds ORDER BY total_power DESC');
+    const res = await query('SELECT * FROM syndicates ORDER BY resources DESC');
     return toCamelCase(res.rows);
   }
 
   async getGuildById(id: string): Promise<Guild | undefined> {
-    const res = await query('SELECT * FROM guilds WHERE id = $1', [id]);
-    return toCamelCase(res.rows[0]);
+    const res = await query('SELECT * FROM syndicates WHERE id = $1', [id]);
+    return res.rows.length > 0 ? toCamelCase(res.rows[0]) : undefined;
   }
 
   async createGuild(guild: InsertGuild): Promise<Guild> {
-    const snakeGuild = toSnakeCase(guild);
-    const columns = Object.keys(snakeGuild).join(', ');
-    const values = Object.values(snakeGuild);
+    // Map to syndicates table structure
+    const syndicateData = {
+      name: guild.name,
+      description: guild.description || '',
+      leader_id: guild.leaderId,
+      level: 1,
+      resources: 0,
+      controlled_ward: null
+    };
+    
+    const columns = Object.keys(syndicateData).join(', ');
+    const values = Object.values(syndicateData);
     const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
 
     const res = await query(
-      `INSERT INTO guilds (${columns}) VALUES (${placeholders}) RETURNING *`,
+      `INSERT INTO syndicates (${columns}) VALUES (${placeholders}) RETURNING *`,
       values
     );
     return toCamelCase(res.rows[0]);
@@ -249,7 +274,7 @@ export class DatabaseStorage implements IStorage {
       `, [limit]);
       return toCamelCase(res.rows);
     } else {
-      const res = await query('SELECT * FROM guilds ORDER BY total_power DESC LIMIT $1', [limit]);
+      const res = await query('SELECT * FROM syndicates ORDER BY resources DESC LIMIT $1', [limit]);
       return toCamelCase(res.rows);
     }
   }
@@ -262,8 +287,8 @@ export class DatabaseStorage implements IStorage {
   }> {
     const totalPlayersRes = await query('SELECT COUNT(*) as count FROM users');
     const activeBattlesRes = await query('SELECT COUNT(*) as count FROM battles');
-    const charactersCollectedRes = await query('SELECT COUNT(*) as count FROM characters');
-    const territoriesClaimedRes = await query('SELECT SUM(territories) as total FROM guilds');
+    const charactersCollectedRes = await query('SELECT COUNT(*) as count FROM user_eidolons');
+    const territoriesClaimedRes = await query('SELECT SUM(resources) as total FROM syndicates');
 
     return {
       totalPlayers: parseInt(totalPlayersRes.rows[0].count, 10),

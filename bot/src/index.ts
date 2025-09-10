@@ -110,30 +110,33 @@ class NexiumBot {
     });
 
     this.client.on(Events.InteractionCreate, async (interaction) => {
-      if (!interaction.isChatInputCommand()) return;
-
-      const command = this.commands.get(interaction.commandName);
-      if (!command) {
-        console.error(`❌ No command matching ${interaction.commandName} was found.`);
-        return;
-      }
-
-      try {
-        await command.execute(interaction);
-        console.log(`✅ ${interaction.user.tag} used /${interaction.commandName}`);
-      } catch (error) {
-        console.error(`❌ Error executing command ${interaction.commandName}:`, error);
-        
-        const errorMessage = {
-          content: '❌ There was an error while executing this command!',
-          ephemeral: true
-        };
-
-        if (interaction.replied || interaction.deferred) {
-          await interaction.followUp(errorMessage);
-        } else {
-          await interaction.reply(errorMessage);
+      if (interaction.isChatInputCommand()) {
+        const command = this.commands.get(interaction.commandName);
+        if (!command) {
+          console.error(`❌ No command matching ${interaction.commandName} was found.`);
+          return;
         }
+
+        try {
+          await command.execute(interaction);
+          console.log(`✅ ${interaction.user.tag} used /${interaction.commandName}`);
+        } catch (error) {
+          console.error(`❌ Error executing command ${interaction.commandName}:`, error);
+          
+          const errorMessage = {
+            content: '❌ There was an error while executing this command!',
+            ephemeral: true
+          };
+
+          if (interaction.replied || interaction.deferred) {
+            await interaction.followUp(errorMessage);
+          } else {
+            await interaction.reply(errorMessage);
+          }
+        }
+      } else if (interaction.isButton()) {
+        // Handle button interactions (for PvP duels, etc.)
+        await this.handleButtonInteraction(interaction);
       }
     });
 
@@ -146,6 +149,50 @@ class NexiumBot {
     const activity = this.activities[this.activityIndex];
     this.client.user?.setActivity(activity.name, { type: activity.type });
     this.activityIndex = (this.activityIndex + 1) % this.activities.length;
+  }
+
+  async handleButtonInteraction(interaction: any): Promise<void> {
+    const customId = interaction.customId;
+
+    try {
+      if (customId.startsWith('pvp_accept_')) {
+        await this.handlePvpAccept(interaction, customId);
+      } else if (customId.startsWith('pvp_decline_')) {
+        await this.handlePvpDecline(interaction, customId);
+      } else if (customId.startsWith('duel_')) {
+        await this.handleDuelAction(interaction, customId);
+      }
+    } catch (error) {
+      console.error('❌ Error handling button interaction:', error);
+      await interaction.reply({
+        content: '❌ An error occurred while processing your action!',
+        ephemeral: true
+      });
+    }
+  }
+
+  async handlePvpAccept(interaction: any, customId: string): Promise<void> {
+    // This is handled in the PvP command, but we can add additional logic here if needed
+    await interaction.reply({
+      content: '✅ Challenge accepted! Use `/pvp accept` to proceed.',
+      ephemeral: true
+    });
+  }
+
+  async handlePvpDecline(interaction: any, customId: string): Promise<void> {
+    // This is handled in the PvP command, but we can add additional logic here if needed
+    await interaction.reply({
+      content: '❌ Challenge declined.',
+      ephemeral: true
+    });
+  }
+
+  async handleDuelAction(interaction: any, customId: string): Promise<void> {
+    // Import PvP duel handling logic here
+    const pvpModule = await import('./commands/pvp.js');
+    if (pvpModule.handleDuelAction) {
+      await pvpModule.handleDuelAction(interaction, customId);
+    }
   }
 
   async start(): Promise<void> {

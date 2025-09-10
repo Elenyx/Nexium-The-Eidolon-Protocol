@@ -1,6 +1,8 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { UserService } from '../services/userService.js';
 import { EidolonService } from '../services/eidolonService.js';
+import { BattleService } from '../services/battleService.js';
+import { PlayerStatsService } from '../services/playerStatsService.js';
 
 // Store active PvP challenges
 const pvpChallenges = new Map<string, { challengerId: string; targetId: string; status: string; timestamp: number }>();
@@ -174,8 +176,8 @@ export default {
         // Start the duel
         const duelId = `duel_${challenger.id}_${userId}_${Date.now()}`;
         activeDuels.set(duelId, {
-          challenger: { id: challenger.id, hp: 100, eidolons: challengerEidolons },
-          target: { id: userId, hp: 100, eidolons: targetEidolons },
+          challenger: { id: challenger.id, name: challenger.displayName, hp: 100, eidolons: challengerEidolons },
+          target: { id: userId, name: interaction.user.displayName, hp: 100, eidolons: targetEidolons },
           turn: challenger.id,
           round: 1
         });
@@ -200,7 +202,7 @@ export default {
           components: [
             {
               type: 10,
-              content: `# ⚔️ Weaver's Duel Begins!\n\n${challenger.displayName} **VS** ${interaction.user.displayName}\n\n**Round 1**\n${challenger.displayName}: 100 HP\n${interaction.user.displayName}: 100 HP\n\n**${challenger.displayName}'s Turn**\n\n*The duel mechanics are being implemented. Stay tuned for full PvP combat!*`
+              content: `# ⚔️ Weaver's Duel Begins!\n\n${challenger.displayName} **VS** ${interaction.user.displayName}\n\n**Round 1**\n${challenger.displayName}: 100 HP\n${interaction.user.displayName}: 100 HP\n\n**${challenger.displayName}'s Turn**`
             }
           ],
           flags: MessageFlags.IsComponentsV2
@@ -283,4 +285,157 @@ export default {
 };
 
 export { pvpChallenges, activeDuels };
+
+// Handle duel button interactions
+export async function handleDuelAction(interaction: any, customId: string): Promise<void> {
+  const parts = customId.split('_');
+  const action = parts[1]; // attack, defend, skill
+  const duelId = `duel_${parts[2]}_${parts[3]}_${parts[4]}`; // duel_challenger_target_timestamp
+
+  const duel = activeDuels.get(duelId);
+  if (!duel) {
+    await interaction.reply({
+      content: '❌ This duel has expired or no longer exists.',
+      ephemeral: true
+    });
+    return;
+  }
+
+  // Check if it's the player's turn
+  if (duel.turn !== interaction.user.id) {
+    await interaction.reply({
+      content: '❌ It\'s not your turn!',
+      ephemeral: true
+    });
+    return;
+  }
+
+  // Process the action
+  const result = await processDuelAction(duel, action, interaction.user.id);
+
+  // Check if duel is over
+  if (result.duelEnded) {
+    activeDuels.delete(duelId);
+    await handleDuelEnd(interaction, duel, result);
+  } else {
+    // Continue duel
+    duel.round++;
+    duel.turn = duel.turn === duel.challenger.id ? duel.target.id : duel.challenger.id;
+
+    const nextPlayerName = duel.turn === duel.challenger.id ? duel.challenger.name : duel.target.name;
+
+    const duelButtons = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId(`duel_attack_${duelId}`)
+          .setLabel('⚡ Attack')
+          .setStyle(ButtonStyle.Primary),
+        new ButtonBuilder()
+          .setCustomId(`duel_defend_${duelId}`)
+          .setLabel('🛡️ Defend')
+          .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
+          .setCustomId(`duel_skill_${duelId}`)
+          .setLabel('✨ Use Skill')
+          .setStyle(ButtonStyle.Success)
+      );
+
+    await interaction.update({
+      content: `# ⚔️ Weaver's Duel - Round ${duel.round}\n\n${duel.challenger.name}: ${duel.challenger.hp} HP\n${duel.target.name}: ${duel.target.hp} HP\n\n${result.message}\n\n**${nextPlayerName}'s Turn**`,
+      components: [duelButtons]
+    });
+  }
+}
+
+async function processDuelAction(duel: any, action: string, playerId: string): Promise<{ message: string; duelEnded: boolean }> {
+  const isChallenger = playerId === duel.challenger.id;
+  const attacker = isChallenger ? duel.challenger : duel.target;
+  const defender = isChallenger ? duel.target : duel.challenger;
+
+  let damage = 0;
+  let message = '';
+
+  switch (action) {
+    case 'attack':
+      damage = Math.floor(Math.random() * 20) + 10; // 10-30 damage
+      defender.hp -= damage;
+      message = `⚡ ${attacker.name} attacks for **${damage} damage!**`;
+      break;
+
+    case 'defend':
+      damage = Math.floor(Math.random() * 10) + 5; // 5-15 damage (reduced)
+      defender.hp -= damage;
+      message = `🛡️ ${attacker.name} defends and counterattacks for **${damage} damage!**`;
+      break;
+
+    case 'skill':
+      // Use the first Eidolon skill
+      const eidolon = attacker.eidolons[0];
+      if (eidolon) {
+        damage = Math.floor(Math.random() * 25) + 15; // 15-40 damage
+        defender.hp -= damage;
+        message = `✨ ${attacker.name} uses **${eidolon.skill_name}** for **${damage} damage!**`;
+      } else {
+        damage = Math.floor(Math.random() * 15) + 5;
+        defender.hp -= damage;
+        message = `⚡ ${attacker.name} uses a basic skill for **${damage} damage!**`;
+      }
+      break;
+  }
+
+  // Ensure HP doesn't go below 0
+  defender.hp = Math.max(0, defender.hp);
+
+  const duelEnded = defender.hp <= 0;
+
+  if (duelEnded) {
+    message += `\n\n🏆 **${attacker.name} wins the duel!**`;
+  }
+
+  return { message, duelEnded };
+}
+
+async function handleDuelEnd(interaction: any, duel: any, result: any): Promise<void> {
+  const winner = duel.challenger.hp > 0 ? duel.challenger : duel.target;
+  const loser = duel.challenger.hp <= 0 ? duel.challenger : duel.target;
+
+  try {
+    // Record battle in database
+    await BattleService.createBattle({
+      winner_id: winner.id,
+      loser_id: loser.id,
+      battle_type: 'pvp',
+      exp_gained: 25,
+      gold_gained: 100,
+      items_gained: []
+    });
+
+    // Update player stats
+    await PlayerStatsService.incrementWins(winner.id);
+    await PlayerStatsService.incrementLosses(loser.id);
+
+    // Award rewards
+    await UserService.addCurrency(winner.id, 100, 0); // 100 NEX
+    await UserService.addCurrency(loser.id, -50, 0); // Lose 50 NEX
+
+    // Update experience
+    await UserService.updateUser(winner.id, { experience: 25 });
+    await UserService.updateUser(loser.id, { experience: 10 });
+
+    const winnerUser = await UserService.getUser(winner.id);
+    const loserUser = await UserService.getUser(loser.id);
+
+    await interaction.update({
+      content: `# 🏆 Duel Complete!\n\n**Winner:** ${winner.name}\n**Loser:** ${loser.name}\n\n## Rewards\n**${winner.name}:**\n• +100 NEX\n• +25 XP\n• +1 PvP Win\n\n**${loser.name}:**\n• -50 NEX\n• +10 XP\n• +1 PvP Loss\n\n${result.message}`,
+      components: []
+    });
+
+  } catch (error) {
+    console.error('Error recording duel results:', error);
+    await interaction.update({
+      content: `# 🏆 Duel Complete!\n\n**Winner:** ${winner.name}\n**Loser:** ${loser.name}\n\n${result.message}\n\n*Note: There was an error recording the results.*`,
+      components: []
+    });
+  }
+}
 

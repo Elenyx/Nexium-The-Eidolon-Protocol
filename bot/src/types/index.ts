@@ -10,6 +10,12 @@ export interface User {
   sync_points: number;
   location: string;
   title: string;
+  // Discord OAuth fields for web integration
+  discord_id?: string;
+  avatar?: string | null;
+  discriminator?: string | null;
+  access_token?: string | null;
+  refresh_token?: string | null;
 }
 
 export interface Eidolon {
@@ -69,5 +75,30 @@ export interface CombatResult {
   damage?: number;
   message: string;
   rewards?: Record<string, any>;
+}
+
+export interface Battle {
+  id: number;
+  winner_id: string | null;
+  loser_id: string | null;
+  battle_type: 'pvp' | 'pve' | 'dungeon';
+  exp_gained: number;
+  gold_gained: number;
+  items_gained: string[];
+  created_at: Date;
+}
+
+export interface PlayerStats {
+  id: number;
+  user_id: string;
+  total_power: number;
+  pvp_wins: number;
+  pvp_losses: number;
+  pvp_rating: number;
+  dungeons_cleared: number;
+  gold: number;
+  reputation: number;
+  created_at: Date;
+  updated_at: Date;
 }
 

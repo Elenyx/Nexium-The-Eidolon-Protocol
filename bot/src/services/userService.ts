@@ -66,5 +66,34 @@ export class UserService {
     const result = await pool.query(query, [id, nexium, cred]);
     return result.rows.length > 0;
   }
+
+  static async updateDiscordInfo(id: string, discordData: {
+    discord_id?: string;
+    avatar?: string | null;
+    discriminator?: string | null;
+    access_token?: string | null;
+    refresh_token?: string | null;
+  }): Promise<User> {
+    const setClause = Object.keys(discordData)
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
+
+    const values = Object.values(discordData);
+    const query = `
+      UPDATE users
+      SET ${setClause}, last_active = CURRENT_TIMESTAMP
+      WHERE id = $1
+      RETURNING *
+    `;
+
+    const result = await pool.query(query, [id, ...values]);
+    return result.rows[0];
+  }
+
+  static async getUserByDiscordId(discordId: string): Promise<User | null> {
+    const query = 'SELECT * FROM users WHERE discord_id = $1';
+    const result = await pool.query(query, [discordId]);
+    return result.rows[0] || null;
+  }
 }
 
