@@ -49,7 +49,7 @@ export default function Characters() {
           <CardContent className="pt-6">
             <h2 className="text-2xl font-bold mb-4">Login Required</h2>
             <p className="text-muted-foreground mb-6">
-              Please login with Discord to view your characters.
+              Please login with Discord to view your Eidolons.
             </p>
           </CardContent>
         </Card>
@@ -62,10 +62,10 @@ export default function Characters() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-foreground mb-2" data-testid="characters-title">
-          My Character Collection
+          My Eidolon Collection
         </h1>
         <p className="text-muted-foreground">
-          Manage and view all your collected characters
+          Manage and view all your collected Eidolons
         </p>
       </div>
 
@@ -73,7 +73,7 @@ export default function Characters() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Total Characters</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">Total Eidolons</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-foreground" data-testid="total-characters">
@@ -84,33 +84,33 @@ export default function Characters() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Legendary</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">SSR Rarity</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-yellow-400" data-testid="legendary-characters">
-              {getCharactersByRarity('legendary').length}
+              {getCharactersByRarity('SSR').length}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Epic</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">SR Rarity</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-purple-400" data-testid="epic-characters">
-              {getCharactersByRarity('epic').length}
+              {getCharactersByRarity('SR').length}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Rare</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">R Rarity</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-blue-400" data-testid="rare-characters">
-              {getCharactersByRarity('rare').length}
+              {getCharactersByRarity('R').length}
             </p>
           </CardContent>
         </Card>
@@ -119,7 +119,7 @@ export default function Characters() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <Input
-          placeholder="Search characters..."
+          placeholder="Search Eidolons..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="sm:max-w-xs"
@@ -131,15 +131,16 @@ export default function Characters() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Rarities</SelectItem>
-            <SelectItem value="common">Common</SelectItem>
-            <SelectItem value="rare">Rare</SelectItem>
-            <SelectItem value="epic">Epic</SelectItem>
-            <SelectItem value="legendary">Legendary</SelectItem>
+            <SelectItem value="C">C (Common)</SelectItem>
+            <SelectItem value="UC">UC (Uncommon)</SelectItem>
+            <SelectItem value="R">R (Rare)</SelectItem>
+            <SelectItem value="SR">SR (Super Rare)</SelectItem>
+            <SelectItem value="SSR">SSR (Super Super Rare)</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {/* Characters Grid */}
+      {/* Eidolons Grid */}
       {charactersLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -154,7 +155,7 @@ export default function Characters() {
         </div>
       ) : characters && characters.length > 0 ? (
         <div className="text-center py-12">
-          <h3 className="text-xl font-semibold mb-2">No characters match your filters</h3>
+          <h3 className="text-xl font-semibold mb-2">No Eidolons match your filters</h3>
           <p className="text-muted-foreground mb-4">
             Try adjusting your search or filter criteria
           </p>
@@ -170,13 +171,13 @@ export default function Characters() {
         </div>
       ) : (
         <div className="text-center py-12">
-          <h3 className="text-xl font-semibold mb-2">No Characters Yet</h3>
+          <h3 className="text-xl font-semibold mb-2">No Eidolons Yet</h3>
           <p className="text-muted-foreground mb-4">
-            Start your adventure by collecting your first character!
+            Start your journey as a Weaver by attuning with your first Eidolon!
           </p>
           <Button className="bg-primary hover:bg-primary/90" data-testid="collect-first-character">
-            <i className="fas fa-dice mr-2"></i>
-            Roll for Characters
+            <i className="fas fa-sync mr-2"></i>
+            Attune First Eidolon
           </Button>
         </div>
       )}

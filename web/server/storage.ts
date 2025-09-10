@@ -128,55 +128,148 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  
   async getUser(id: string): Promise<User | undefined> {
     const res = await query('SELECT * FROM users WHERE id = $1', [id]);
-    return toCamelCase(res.rows[0]);
+    if (!res.rows[0]) return undefined;
+    
+    const botUser = res.rows[0];
+    return {
+      id: botUser.id.toString(),
+      discordId: botUser.id.toString(),
+      username: botUser.username,
+      avatar: botUser.avatar,
+      discriminator: botUser.discriminator,
+      accessToken: botUser.access_token,
+      refreshToken: botUser.refresh_token,
+      createdAt: botUser.created_at
+    };
   }
 
   async getUserByDiscordId(discordId: string): Promise<User | undefined> {
-    const res = await query('SELECT * FROM users WHERE discord_id = $1', [discordId]);
-    return toCamelCase(res.rows[0]);
+    const res = await query('SELECT * FROM users WHERE id = $1', [discordId]);
+    if (!res.rows[0]) return undefined;
+    
+    const botUser = res.rows[0];
+    return {
+      id: botUser.id.toString(),
+      discordId: botUser.id.toString(),
+      username: botUser.username,
+      avatar: botUser.avatar,
+      discriminator: botUser.discriminator,
+      accessToken: botUser.access_token,
+      refreshToken: botUser.refresh_token,
+      createdAt: botUser.created_at
+    };
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    // Create a user object with id and other fields
-    const userWithId = {
-      id: randomUUID(),
-      ...insertUser
-    } as any; // Using any to bypass TypeScript's type checking
+  async createUser(userData: InsertUser): Promise<User> {
+    // Create user directly in bot's users table using Discord ID as primary key
+    const result = await query(`
+      INSERT INTO users (id, username, avatar, discriminator, access_token, refresh_token, nexium, cred, level, experience, created_at, last_active)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+      RETURNING *
+    `, [
+      userData.discordId, // Use Discord ID as primary key
+      userData.username,
+      userData.avatar || null,
+      userData.discriminator || null,
+      userData.accessToken || null,
+      userData.refreshToken || null,
+      100, // Default NEX
+      50,  // Default CRD
+      1,   // Default level
+      0    // Default experience
+    ]);
     
-    const snakeUser = toSnakeCase(userWithId);
-    const columns = Object.keys(snakeUser).join(', ');
-    const values = Object.values(snakeUser);
-    const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
-    
-    const res = await query(
-      `INSERT INTO users (${columns}) VALUES (${placeholders}) RETURNING *`,
-      values
-    );
-    return toCamelCase(res.rows[0]);
+    // Convert to the expected User format for web app
+    const botUser = result.rows[0];
+    return {
+      id: botUser.id.toString(), // Convert bigint to string for web app
+      discordId: botUser.id.toString(),
+      username: botUser.username,
+      avatar: botUser.avatar,
+      discriminator: botUser.discriminator,
+      accessToken: botUser.access_token,
+      refreshToken: botUser.refresh_token,
+      createdAt: botUser.created_at
+    };
   }
 
   async updateUser(id: string, updateData: Partial<InsertUser>): Promise<User | undefined> {
-    const snakeUpdateData = toSnakeCase(updateData);
-    const setClause = Object.keys(snakeUpdateData).map((key, i) => `${key} = $${i + 2}`).join(', ');
-    const values = Object.values(snakeUpdateData);
+    const updateFields = [];
+    const values: any[] = [id];
+    let paramIndex = 2;
+
+    if (updateData.username) {
+      updateFields.push(`username = $${paramIndex++}`);
+      values.push(updateData.username);
+    }
+    if (updateData.avatar !== undefined) {
+      updateFields.push(`avatar = $${paramIndex++}`);
+      values.push(updateData.avatar);
+    }
+    if (updateData.discriminator !== undefined) {
+      updateFields.push(`discriminator = $${paramIndex++}`);
+      values.push(updateData.discriminator);
+    }
+    if (updateData.accessToken !== undefined) {
+      updateFields.push(`access_token = $${paramIndex++}`);
+      values.push(updateData.accessToken);
+    }
+    if (updateData.refreshToken !== undefined) {
+      updateFields.push(`refresh_token = $${paramIndex++}`);
+      values.push(updateData.refreshToken);
+    }
+
+    if (updateFields.length === 0) {
+      return this.getUser(id);
+    }
+
+    updateFields.push(`last_active = NOW()`);
 
     const res = await query(
-      `UPDATE users SET ${setClause} WHERE id = $1 RETURNING *`,
-      [id, ...values]
+      `UPDATE users SET ${updateFields.join(', ')} WHERE id = $1 RETURNING *`,
+      values
     );
-    return toCamelCase(res.rows[0]);
+    
+    if (!res.rows[0]) return undefined;
+    
+    const botUser = res.rows[0];
+    return {
+      id: botUser.id.toString(),
+      discordId: botUser.id.toString(),
+      username: botUser.username,
+      avatar: botUser.avatar,
+      discriminator: botUser.discriminator,
+      accessToken: botUser.access_token,
+      refreshToken: botUser.refresh_token,
+      createdAt: botUser.created_at
+    };
   }
 
   // Characters operations (mapped to user_eidolons in bot schema)
   async getCharactersByUserId(userId: string): Promise<Character[]> {
+    // Use Discord ID directly (since userId in web app is the Discord ID)
+    const discordId = userId;
+
     const res = await query(`
-      SELECT ue.*, e.name as eidolon_name, e.rarity, e.element 
+      SELECT 
+        ue.id,
+        e.name,
+        e.rarity,
+        (ue.level * 100 + ue.sync_ratio * 10) as power, -- Calculate power from level and sync
+        ue.level,
+        ue.experience,
+        null as image, -- No image field in bot schema yet
+        ARRAY['TODO'] as abilities, -- Placeholder for abilities
+        $1 as "userId", -- Return web app user ID for consistency
+        ue.acquired_at as "createdAt"
       FROM user_eidolons ue 
       JOIN eidolons e ON ue.eidolon_id = e.id 
-      WHERE ue.user_id = $1
-    `, [userId]);
+      WHERE ue.user_id = $2
+      ORDER BY ue.acquired_at DESC
+    `, [userId, discordId]);
     return toCamelCase(res.rows);
   }
 
@@ -259,8 +352,49 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPlayerStats(userId: string): Promise<PlayerStats | undefined> {
-    const res = await query('SELECT * FROM player_stats WHERE user_id = $1', [userId]);
-    return toCamelCase(res.rows[0]);
+    // Use Discord ID directly (since userId in web app is the Discord ID)
+    const discordId = userId;
+
+    // Get user data from bot's users table using Discord ID
+    const botUserRes = await query('SELECT nexium, cred, level, experience, sync_points FROM users WHERE id = $1', [discordId]);
+    const botUserData = botUserRes.rows[0];
+    
+    if (!botUserData) {
+      return undefined;
+    }
+
+    // Get player stats (PvP, battles, etc.) - create if doesn't exist
+    let statsRes = await query('SELECT * FROM player_stats WHERE user_id = $1', [discordId]);
+    let statsData = statsRes.rows[0];
+
+    // If no player_stats record exists, create one
+    if (!statsData) {
+      await query(`
+        INSERT INTO player_stats (user_id, total_power, pvp_wins, pvp_losses, pvp_rating, dungeons_cleared, gold, reputation)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `, [discordId, 0, 0, 0, 1000, 0, 0, 0]);
+      
+      // Fetch the newly created record
+      statsRes = await query('SELECT * FROM player_stats WHERE user_id = $1', [discordId]);
+      statsData = statsRes.rows[0];
+    }
+
+    // Combine data from both tables
+    const combinedStats = {
+      id: statsData?.id || randomUUID(),
+      userId: userId, // Return the web app user ID for consistency
+      totalPower: statsData?.total_power || 0,
+      pvpWins: statsData?.pvp_wins || 0,
+      pvpLosses: statsData?.pvp_losses || 0,
+      pvpRating: statsData?.pvp_rating || 1000,
+      dungeonsCleared: statsData?.dungeons_cleared || 0,
+      nexium: botUserData.nexium || 100, // From bot's users table
+      cred: botUserData.cred || 50,       // From bot's users table
+      gold: statsData?.gold || 0,        // Keep for backward compatibility
+      reputation: statsData?.reputation || 0
+    };
+
+    return toCamelCase(combinedStats);
   }
 
   async getLeaderboard(type: 'pvp' | 'guild', limit: number = 10): Promise<any[]> {

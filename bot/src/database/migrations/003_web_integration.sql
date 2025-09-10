@@ -1,8 +1,7 @@
 -- Migration 003: Add web app integration tables and columns
--- Adds Discord OAuth fields, battles table, and player stats table
+-- Adds Discord OAuth fields to bot's users table, battles table, and player stats table
 
--- Add Discord OAuth fields to users table
-ALTER TABLE users ADD COLUMN IF NOT EXISTS discord_id VARCHAR(20);
+-- Add Discord OAuth fields directly to the bot's existing users table
 ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS discriminator VARCHAR(10);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS access_token TEXT;

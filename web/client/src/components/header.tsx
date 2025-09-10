@@ -19,7 +19,7 @@ export function Header() {
   const navItems = [
     { href: "/", label: "Home" },
     { href: "/dashboard", label: "Dashboard" },
-    { href: "/characters", label: "Characters" },
+    { href: "/characters", label: "Eidolons" },
     { href: "/battles", label: "Battles" },
     { href: "/leaderboard", label: "Leaderboard" },
   ];

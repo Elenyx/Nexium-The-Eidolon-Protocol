@@ -68,7 +68,7 @@ export default function Dashboard() {
       </div>
 
       {/* Player Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground">Total Power</CardTitle>
@@ -116,14 +116,29 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Gold</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">NEX (Nexium)</CardTitle>
           </CardHeader>
           <CardContent>
             {statsLoading ? (
               <Skeleton className="h-8 w-20" />
             ) : (
-              <p className="text-2xl font-bold text-yellow-400" data-testid="stat-gold">
-                {stats?.gold?.toLocaleString() || '0'}
+              <p className="text-2xl font-bold text-purple-400" data-testid="stat-nexium">
+                {stats?.nexium?.toLocaleString() || '100'}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">CRD (Cred)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {statsLoading ? (
+              <Skeleton className="h-8 w-20" />
+            ) : (
+              <p className="text-2xl font-bold text-green-400" data-testid="stat-cred">
+                {stats?.cred?.toLocaleString() || '50'}
               </p>
             )}
           </CardContent>
@@ -131,11 +146,11 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Characters Section */}
+        {/* Eidolons Section */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle data-testid="my-characters-title">My Characters</CardTitle>
+              <CardTitle data-testid="my-characters-title">My Eidolons</CardTitle>
               <Button variant="link" asChild data-testid="view-all-my-characters">
                 <Link href="/characters">View All</Link>
               </Button>
@@ -156,9 +171,9 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                <p>No characters collected yet</p>
+                <p>No Eidolons attuned yet</p>
                 <Button variant="outline" className="mt-4" data-testid="get-first-character">
-                  Get Your First Character
+                  Attune Your First Eidolon
                 </Button>
               </div>
             )}

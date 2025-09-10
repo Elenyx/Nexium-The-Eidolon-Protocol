@@ -1,7 +1,6 @@
 # **Nexium RPG: The Eidolon Protocol**
 ## **Project Proposal & Comprehensive Overview**
 
-**To:** Board of Stakeholders
 **From:** Project Development Team
 **Date:** Semptember 8, 2025
 **Subject:** Proposal for a Groundbreaking Discord-Based RPG Ecosystem

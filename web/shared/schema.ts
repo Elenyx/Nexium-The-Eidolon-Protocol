@@ -64,7 +64,9 @@ export interface PlayerStats {
   pvpLosses: number;
   pvpRating: number;
   dungeonsCleared: number;
-  gold: number;
+  nexium: number; // Soulbound currency
+  cred: number;    // Tradable currency
+  gold: number;    // Keep for backward compatibility
   reputation: number;
 }
 

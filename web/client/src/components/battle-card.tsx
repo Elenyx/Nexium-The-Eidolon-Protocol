@@ -82,8 +82,8 @@ export function BattleCard({ battle, usernames = {} }: BattleCardProps) {
             +{battle.expGained} EXP
           </span>
           {battle.goldGained > 0 && (
-            <span className="text-yellow-400" data-testid={`battle-gold-${battle.id}`}>
-              +{battle.goldGained} Gold
+            <span className="text-purple-400" data-testid={`battle-nex-${battle.id}`}>
+              +{battle.goldGained} NEX
             </span>
           )}
           {battle.itemsGained.length > 0 && (
