@@ -75,6 +75,7 @@ export interface CombatResult {
   damage?: number;
   message: string;
   rewards?: Record<string, any>;
+  detailedRewards?: any[];
 }
 
 export interface Battle {

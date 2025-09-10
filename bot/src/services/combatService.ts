@@ -76,7 +76,43 @@ export class CombatService {
       [userId, encounterId, 'weave', JSON.stringify({ pattern }), success, damage, JSON.stringify(rewards)]
     );
     
-    return { success, damage, message, rewards };
+  const baseReward = rewards as any;
+
+  // Build detailed rewards with item names
+  const detailedRewards: any[] = [];
+    try {
+      if (baseReward.nexium) detailedRewards.push({ type: 'nexium', amount: baseReward.nexium });
+      if (baseReward.experience) detailedRewards.push({ type: 'experience', amount: baseReward.experience });
+
+      if (baseReward.items && Array.isArray(baseReward.items)) {
+        const ids = baseReward.items.map((it: any) => it.id);
+        const res = await pool.query('SELECT id, name FROM items WHERE id = ANY($1)', [ids]);
+        const nameById: Record<number, string> = {};
+        for (const r of res.rows) nameById[r.id] = r.name;
+        for (const it of baseReward.items) {
+          detailedRewards.push({
+            type: 'item',
+            id: it.id,
+            name: nameById[it.id] || `Item ${it.id}`,
+            quantity: it.quantity || 1
+          });
+        }
+      }
+
+      if (baseReward.tuner_chance) {
+        // Determine if tuner was awarded (we may have already inserted it above)
+        const awarded = success && Math.random() < baseReward.tuner_chance;
+        // Try resolve Basic Tuner name
+        const res2 = await pool.query('SELECT id, name FROM items WHERE id = $1', [1]);
+        const tunerName = res2.rows[0] ? res2.rows[0].name : 'Basic Tuner';
+        detailedRewards.push({ type: 'tuner', name: tunerName, chance: baseReward.tuner_chance, awarded: awarded });
+      }
+    } catch (err) {
+      // If name resolution fails, fall back to raw rewards
+      console.error('Error resolving reward names:', err);
+    }
+
+    return { success, damage, message, rewards: baseReward, detailedRewards };
   }
 
   private static async getEncounterById(id: number): Promise<Encounter> {

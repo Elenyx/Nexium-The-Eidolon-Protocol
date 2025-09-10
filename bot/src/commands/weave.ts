@@ -44,7 +44,7 @@ export default {
       const result = await CombatService.weavePattern(userId, encounterId, pattern);
       const encounter = { id: encounterId }; // Simplified for components
 
-      const components = ComponentBuilder.createCombatResultComponents(result, encounter);
+      const components = await ComponentBuilder.createCombatResultComponents(result, encounter);
 
       await interaction.reply({
         components: [
@@ -54,7 +54,7 @@ export default {
           },
           ...components
         ],
-        flags: MessageFlags.IsComponentsV2
+        flags: MessageFlags.Ephemeral | MessageFlags.IsComponentsV2
       });
 
       // If successful, clear the encounter

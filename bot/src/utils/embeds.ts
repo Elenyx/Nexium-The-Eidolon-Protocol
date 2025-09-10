@@ -2,6 +2,7 @@ import {
   ContainerBuilder, 
   TextDisplayBuilder
 } from 'discord.js';
+import pool from '../database/connection.js';
 import { User, UserEidolon, Eidolon } from '../types/index.js';
 
 export class ComponentBuilder {
@@ -131,23 +132,99 @@ export class ComponentBuilder {
     return components;
   }
 
-  static createCombatResultComponents(result: any, encounter: any): any[] {
+  static async createCombatResultComponents(result: any, encounter: any): Promise<any[]> {
     const isSuccess = result.success;
     const color = isSuccess ? 0x00FF00 : 0xFF6B6B;
-    
-    return [
+    const components: any[] = [];
+
+    components.push(
       new ContainerBuilder()
         .setAccentColor(color)
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(result.message)
-        ),
-      
+        )
+    );
+
+    // Build reward display lines, prefer detailedRewards
+    const detailed: any[] = result.detailedRewards ?? [];
+    const rewardDisplays: string[] = [];
+
+    if (detailed.length > 0) {
+      // Resolve item names for any item rewards
+      const itemIds: number[] = [];
+      for (const r of detailed) if (r.type === 'item' && r.id) itemIds.push(r.id);
+
+      let nameById: Record<number, string> = {};
+      if (itemIds.length > 0) {
+        try {
+          const res = await pool.query('SELECT id, name FROM items WHERE id = ANY($1)', [itemIds]);
+          for (const row of res.rows) nameById[row.id] = row.name;
+        } catch (err) {
+          console.error('Failed to resolve item names:', err);
+        }
+      }
+
+      for (const r of detailed) {
+        if (r.type === 'nexium') rewardDisplays.push(`💠 NEX: +${r.amount}`);
+        else if (r.type === 'experience') rewardDisplays.push(`⭐ XP: +${r.amount}`);
+        else if (r.type === 'item') {
+          const name = r.name || nameById[r.id] || `Item ${r.id}`;
+          const qty = r.quantity ?? 1;
+          rewardDisplays.push(`📦 ${name} x${qty}`);
+        } else if (r.type === 'tuner') {
+          const awarded = r.awarded ? ' (awarded)' : '';
+          const chanceText = r.chance ? ` (${Math.round(r.chance * 100)}% chance)` : '';
+          const name = r.name || 'Tuner';
+          rewardDisplays.push(`🎛️ ${name}${awarded}${chanceText}`);
+        } else {
+          rewardDisplays.push(JSON.stringify(r));
+        }
+      }
+    } else {
+      const rewards = result.rewards || {};
+      if (rewards.nexium) rewardDisplays.push(`💠 NEX: +${rewards.nexium}`);
+      if (rewards.experience) rewardDisplays.push(`⭐ XP: +${rewards.experience}`);
+      if (rewards.items && Array.isArray(rewards.items)) {
+        for (const it of rewards.items) {
+          const id = it.id ?? it.item_id ?? 'unknown';
+          const qty = it.quantity ?? it.qty ?? 1;
+          rewardDisplays.push(`📦 Item (${id}) x${qty}`);
+        }
+      }
+      if (rewards.tuner_chance && result.success && rewardDisplays.length === 0) {
+        rewardDisplays.push(`🎛️ Tuner: chance awarded`);
+      }
+    }
+
+    if (rewardDisplays.length > 0) {
+      components.push(
+        new ContainerBuilder()
+          .setAccentColor(0xFFD700)
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent('🏆 Rewards'),
+            ...rewardDisplays.map(line => new TextDisplayBuilder().setContent(line))
+          )
+      );
+    } else {
+      components.push(
+        new ContainerBuilder()
+          .setAccentColor(0x999999)
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent('⚖️ Rewards'),
+            new TextDisplayBuilder().setContent(isSuccess ? 'No additional rewards.' : 'No rewards this attempt.')
+          )
+      );
+    }
+
+    components.push(
       new TextDisplayBuilder().setContent(
         isSuccess ? 
         '🎉 *Victory! You may encounter more enemies or return to safety.*' :
         '💪 *Keep fighting! Try different weave patterns to find the solution.*'
       )
-    ];
+    );
+
+    return components;
   }
 }
 
