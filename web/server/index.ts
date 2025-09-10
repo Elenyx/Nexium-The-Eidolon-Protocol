@@ -4,6 +4,7 @@ import "./env";
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { uptimeMonitor } from "./uptime-monitor";
 
 const app = express();
 app.use(express.json());
@@ -66,5 +67,8 @@ app.use((req, res, next) => {
   // Fix: Use a simpler listening configuration that works across platforms
   server.listen(port, () => {
     log(`Server running at http://localhost:${port}`);
+    
+    // Start uptime monitoring after server is ready
+    uptimeMonitor.start(30000); // Check every 30 seconds
   });
 })();

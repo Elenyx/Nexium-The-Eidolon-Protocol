@@ -22,6 +22,7 @@ export function Header() {
     { href: "/characters", label: "Eidolons" },
     { href: "/battles", label: "Battles" },
     { href: "/leaderboard", label: "Leaderboard" },
+    { href: "/status", label: "Status" },
   ];
 
   return (

@@ -2,8 +2,14 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { randomUUID } from "crypto";
+import { getSystemStatus, getStatusHistory, getUptimeStats } from "./status";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Status routes
+  app.get("/api/status", getSystemStatus);
+  app.get("/api/status/history/:service", getStatusHistory);
+  app.get("/api/status/uptime", getUptimeStats);
+
   // Dashboard stats
   app.get("/api/stats", async (req, res) => {
     try {
