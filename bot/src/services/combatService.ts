@@ -85,6 +85,11 @@ export class CombatService {
     return result.rows[0];
   }
 
+  // Public wrapper to fetch an encounter by id (keeps internal name private)
+  static async fetchEncounterById(id: number): Promise<Encounter> {
+    return this.getEncounterById(id);
+  }
+
   private static evaluatePattern(userPattern: string, correctPattern: string): boolean {
     // Simple pattern matching - in a full implementation, this would be a proper logic parser
     const normalizedUser = userPattern.replace(/\s+/g, ' ').trim();

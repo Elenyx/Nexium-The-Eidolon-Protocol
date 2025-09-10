@@ -2,6 +2,7 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags } from '
 import { UserService } from '../services/userService.js';
 import { CombatService } from '../services/combatService.js';
 import { activeEncounters } from './encounter.js';
+import { ComponentBuilder } from '../utils/embeds.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -32,17 +33,17 @@ export default {
         return;
       }
 
-      // Get the weakness hint
-      const hint = await CombatService.scanEnemy(userId, encounterId);
+      // Fetch the full encounter so we can render structured components
+  const encounter = await CombatService.fetchEncounterById(encounterId);
 
-      // Send hint as ephemeral message
+      // Log the scan action (will insert into combat_logs)
+      await CombatService.scanEnemy(userId, encounterId);
+
+      // Build structured components (Container/TextDisplay) with normalized hint
+      const components = ComponentBuilder.createEncounterComponents(encounter, true);
+
       await interaction.reply({
-        components: [
-          {
-            type: 10, // TextDisplay
-            content: `${hint}\n\n� **Pro Tip:** Pattern matching is case-insensitive. Use spaces around operators (AND, OR, NOT).\n\n🎯 **Ready to weave?** Use \`/weave [your pattern]\` to attempt the solution!`
-          }
-        ],
+        components,
         flags: MessageFlags.Ephemeral | MessageFlags.IsComponentsV2
       });
 
