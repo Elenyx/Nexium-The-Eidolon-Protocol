@@ -99,12 +99,25 @@ export class ComponentBuilder {
     ];
 
     if (scanned) {
+      // Normalize any stored escaped newlines ("\\n") into real newlines
+      const rawHint = String(encounter.weakness_hint || '');
+      const normalized = rawHint.replace(/\\n/g, '\n');
+
+      // Split into paragraphs (double-newline) and create individual TextDisplay blocks
+      const paragraphs = normalized.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+
+      const textDisplays = [
+        new TextDisplayBuilder().setContent('🔍 **Weakness Analysis**')
+      ];
+
+      for (const p of paragraphs) {
+        textDisplays.push(new TextDisplayBuilder().setContent(p));
+      }
+
       components.push(
         new ContainerBuilder()
           .setAccentColor(0x3CB371)
-          .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(`🔍 **Weakness Analysis**\n*${encounter.weakness_hint}*`)
-          )
+          .addTextDisplayComponents(...textDisplays)
       );
     }
 
