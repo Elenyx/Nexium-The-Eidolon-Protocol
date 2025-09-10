@@ -35,35 +35,16 @@ export default {
       // Get the weakness hint
       const hint = await CombatService.scanEnemy(userId, encounterId);
 
-      // Send hint via DM
-      try {
-        await interaction.user.send({
-          components: [
-            {
-              type: 10, // TextDisplay
-              content: `🔍 **Enemy Analysis Complete**\n\n**Weakness Detected:**\n*${hint}*\n\nReturn to the server and use \`/weave [pattern]\` to exploit this weakness!`
-            }
-          ],
-          flags: MessageFlags.IsComponentsV2
-        });
-
-        await interaction.reply({
-          content: '🔍 **Scan complete!** Check your DMs for the weakness analysis.',
-          flags: MessageFlags.Ephemeral
-        });
-
-      } catch (error) {
-        // If DM fails, send in channel as ephemeral
-        await interaction.reply({
-          components: [
-            {
-              type: 10, // TextDisplay
-              content: `🔍 **Enemy Analysis Complete**\n\n**Weakness Detected:**\n*${hint}*\n\nUse \`/weave [pattern]\` to exploit this weakness!`
-            }
-          ],
-          flags: MessageFlags.Ephemeral | MessageFlags.IsComponentsV2
-        });
-      }
+      // Send hint as ephemeral message
+      await interaction.reply({
+        components: [
+          {
+            type: 10, // TextDisplay
+            content: `🔍 **Enemy Analysis Complete**\n\n**Weakness Detected:**\n*${hint}*\n\nUse \`/weave [pattern]\` to exploit this weakness!`
+          }
+        ],
+        flags: MessageFlags.Ephemeral | MessageFlags.IsComponentsV2
+      });
 
     } catch (error) {
       console.error('Error in scan command:', error);
