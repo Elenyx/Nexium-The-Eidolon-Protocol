@@ -36,9 +36,8 @@ RUN addgroup -g 1001 -S nodejs && \
 RUN chown -R botuser:nodejs /app
 USER botuser
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "console.log('Bot is running')" || exit 1
+# Railway will handle health checks via HTTP requests to the /health endpoint
+# No Docker HEALTHCHECK needed
 
 # Start the application
 CMD ["npm", "start"]

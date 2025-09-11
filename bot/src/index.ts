@@ -29,7 +29,9 @@ class NexiumBot {
     });
     
     this.commands = new Collection();
-    this.healthServer = new HealthServer(this.client);
+    // Railway requires the app to bind to process.env.PORT
+    const port = parseInt(process.env.PORT || '3000', 10);
+    this.healthServer = new HealthServer(this.client, port);
     
     // Activity rotation for the bot status
     this.activities = [
