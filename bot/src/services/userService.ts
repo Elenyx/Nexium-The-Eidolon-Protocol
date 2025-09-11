@@ -4,8 +4,8 @@ import { User } from '../types/index.js';
 export class UserService {
   static async createUser(id: string, username: string): Promise<User> {
     const query = `
-      INSERT INTO users (id, username) 
-      VALUES ($1, $2) 
+      INSERT INTO users (id, username, last_active) 
+      VALUES ($1, $2, NULL) 
       ON CONFLICT (id) DO UPDATE SET 
         username = $2, 
         last_active = CURRENT_TIMESTAMP 

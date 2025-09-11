@@ -7,7 +7,7 @@
 console.log('🔍 Testing Bot Database Tables...');
 
 import { readFileSync } from 'fs';
-import pool from './bot/src/database/connection.js';
+import pool from '../bot/src/database/connection.js';
 
 async function testDatabaseTables() {
   try {
@@ -53,7 +53,7 @@ async function testWebAPIEndpoints() {
   
   try {
     // Import storage from web app
-    const { storage } = await import('./web/server/storage.js');
+    const { storage } = await import('../web/server/storage.js');
     
     // Test dashboard stats
     const dashboardStats = await storage.getDashboardStats();

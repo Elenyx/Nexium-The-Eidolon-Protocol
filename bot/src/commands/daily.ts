@@ -1,6 +1,5 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { UserService } from '../services/userService.js';
-import { ComponentBuilder } from '../utils/embeds.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -57,7 +56,14 @@ export default {
       // Award the rewards
       await UserService.addCurrency(userId, finalNEX, finalCRD);
 
-      // Create response with action buttons
+      // Create embed for the response
+      const embed = new EmbedBuilder()
+        .setTitle('🎁 Daily Rewards Claimed!')
+        .setDescription(`**Rewards Earned:**\n💰 **${finalNEX}** NEX\n💳 **${finalCRD}** CRD\n\n${streakBonus ? '✨ **STREAK BONUS!** Your dedication has been rewarded with 50% extra!\n\n' : ''}*Come back tomorrow for more rewards! Higher level = better dailies!*`)
+        .setColor(0x00ff00)
+        .setTimestamp();
+
+      // Create action buttons
       const linkButtons = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(
           new ButtonBuilder()
@@ -74,22 +80,9 @@ export default {
             .setURL('https://nexium-rpg.win')
         );
 
-      const components = [
-        {
-          type: 10, // TextDisplay
-          content: `# 🎁 Daily Rewards Claimed!\n\n**Rewards Earned:**\n💰 **${finalNEX}** NEX\n💳 **${finalCRD}** CRD\n\n${streakBonus ? '✨ **STREAK BONUS!** Your dedication has been rewarded with 50% extra!\n\n' : ''}*Come back tomorrow for more rewards! Higher level = better dailies!*`
-        }
-      ];
-
       await interaction.reply({
-        components: [
-          ...components,
-          {
-            type: 10,
-            content: `\n[Visit Discord TOS](https://discord.com/terms) | [Privacy Policy](https://discord.com/privacy) | [Nexium RPG](https://nexium-rpg.win)`
-          }
-        ],
-        flags: MessageFlags.IsComponentsV2
+        embeds: [embed],
+        components: [linkButtons]
       });
 
     } catch (error) {
