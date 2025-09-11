@@ -17,6 +17,8 @@ export default {
     ),
 
   async execute(interaction: ChatInputCommandInteraction) {
+    await interaction.deferReply();
+
     const subcommand = interaction.options.getSubcommand();
     const userId = interaction.user.id;
     const username = interaction.user.displayName || interaction.user.username;
@@ -25,9 +27,8 @@ export default {
       if (subcommand === 'create') {
         const existingUser = await UserService.getUser(userId);
         if (existingUser) {
-          await interaction.reply({
-            content: '⚠️ You already have a profile! Use `/profile view` to see it.',
-            flags: MessageFlags.Ephemeral
+          await interaction.editReply({
+            content: '⚠️ You already have a profile! Use `/profile view` to see it.'
           });
           return;
         }
@@ -57,7 +58,7 @@ export default {
             ),
         ];
 
-        await interaction.reply({
+        await interaction.editReply({
           components,
           flags: MessageFlags.IsComponentsV2
         });
@@ -65,9 +66,8 @@ export default {
       } else if (subcommand === 'view') {
         const user = await UserService.getUser(userId);
         if (!user) {
-          await interaction.reply({
-            content: '❌ Profile not found. Use `/profile create` to start your journey!',
-            flags: MessageFlags.Ephemeral
+          await interaction.editReply({
+            content: '❌ Profile not found. Use `/profile create` to start your journey!'
           });
           return;
         }
@@ -97,7 +97,7 @@ export default {
             ),
         ];
 
-        await interaction.reply({
+        await interaction.editReply({
           components,
           flags: MessageFlags.IsComponentsV2
         });
@@ -105,9 +105,8 @@ export default {
 
     } catch (error) {
       console.error('Error in profile command:', error);
-      await interaction.reply({
-        content: '❌ An error occurred while accessing your profile. Please try again.',
-        flags: MessageFlags.Ephemeral
+      await interaction.editReply({
+        content: '❌ An error occurred while accessing your profile. Please try again.'
       });
     }
   }

@@ -12,7 +12,9 @@ dotenv.config({ path: path.resolve(__dirname, '..', '..', '.env') });
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  connectionTimeoutMillis: 5000, // 5 second timeout
+  query_timeout: 10000 // 10 second query timeout
 });
 
 pool.on('connect', () => {

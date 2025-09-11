@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "ensure-db": "tsx src/database/init.ts",
-    "build": "tsc -b tsconfig.json",
+    "build": "tsc -b tsconfig.json && npm run copy-assets",
+    "copy-assets": "node -e \"const fs = require('fs'); const path = require('path'); fs.mkdirSync(path.join('dist', 'database'), { recursive: true }); fs.copyFileSync(path.join('src', 'database', 'schema.sql'), path.join('dist', 'database', 'schema.sql')); console.log('Copied schema.sql to dist/database/');\"",
     "legacy-build": "node legacy/simplified-build.js",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "deploy": "npm run build && npm run deploy-commands",

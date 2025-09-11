@@ -12,15 +12,16 @@ export default {
     .setDescription('Start a random encounter in Neo-Avalon'),
 
   async execute(interaction: ChatInputCommandInteraction) {
+    await interaction.deferReply();
+
     const userId = interaction.user.id;
 
     try {
       // Check if user exists
       const user = await UserService.getUser(userId);
       if (!user) {
-        await interaction.reply({
-          content: '❌ You need a profile first! Use `/profile create` to start your journey.',
-          flags: MessageFlags.Ephemeral
+        await interaction.editReply({
+          content: '❌ You need a profile first! Use `/profile create` to start your journey.'
         });
         return;
       }
@@ -31,7 +32,7 @@ export default {
 
       const components = ComponentBuilder.createEncounterComponents(encounter);
 
-      await interaction.reply({
+      await interaction.editReply({
         components: [
           {
             type: 10, // TextDisplay
@@ -44,9 +45,8 @@ export default {
 
     } catch (error) {
       console.error('Error in encounter command:', error);
-      await interaction.reply({
-        content: '❌ An error occurred while generating an encounter. Please try again.',
-        flags: MessageFlags.Ephemeral
+      await interaction.editReply({
+        content: '❌ An error occurred while generating an encounter. Please try again.'
       });
     }
   }
