@@ -10,7 +10,6 @@ import Dashboard from "@/pages/dashboard";
 import Characters from "@/pages/characters";
 import Battles from "@/pages/battles";
 import Leaderboard from "@/pages/leaderboard";
-import Status from "@/pages/status";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -21,7 +20,6 @@ function Router() {
       <Route path="/characters" component={Characters} />
       <Route path="/battles" component={Battles} />
       <Route path="/leaderboard" component={Leaderboard} />
-      <Route path="/status" component={Status} />
       <Route component={NotFound} />
     </Switch>
   );
