@@ -8,12 +8,8 @@ services:
       dockerfile: Dockerfile
     container_name: nexium-discord-bot
     restart: unless-stopped
-    environment:
-      - NODE_ENV=production
-      # Add your Discord bot environment variables here
-      # - DISCORD_TOKEN=${DISCORD_TOKEN}
-      # - CLIENT_ID=${CLIENT_ID}
-      # - DATABASE_URL=${DATABASE_URL}
+    env_file:
+      - .env
     volumes:
       # Mount database if using SQLite
       - ./data:/app/data

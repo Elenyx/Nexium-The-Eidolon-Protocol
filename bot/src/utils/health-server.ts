@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import type { Client } from 'discord.js';
 
 export class HealthServer {
@@ -16,7 +16,7 @@ export class HealthServer {
 
   private setupRoutes() {
     // Health check endpoint
-    this.app.get('/health', (req, res) => {
+    this.app.get('/health', (req: Request, res: Response) => {
       const isReady = this.botClient.isReady();
       const status = isReady ? 'ok' : 'not_ready';
       const statusCode = isReady ? 200 : 503;
@@ -37,7 +37,7 @@ export class HealthServer {
     });
 
     // Bot stats endpoint (optional)
-    this.app.get('/stats', (req, res) => {
+    this.app.get('/stats', (req: Request, res: Response) => {
       if (!this.botClient.isReady()) {
         return res.status(503).json({ error: 'Bot not ready' });
       }
@@ -53,7 +53,7 @@ export class HealthServer {
     });
 
     // Simple ping endpoint
-    this.app.get('/ping', (req, res) => {
+    this.app.get('/ping', (req: Request, res: Response) => {
       res.json({ pong: true, timestamp: new Date().toISOString() });
     });
   }
