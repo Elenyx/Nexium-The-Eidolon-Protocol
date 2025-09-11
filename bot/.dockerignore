@@ -9,13 +9,9 @@ coverage/
 test/
 *.test.js
 *.test.ts
-*.test.jsx
-*.test.tsx
 *.spec.js
 *.spec.ts
-*.spec.jsx
-*.spec.tsx
-vitest.config.ts
+vitest.config.js
 
 # Ignore logs
 logs/
@@ -28,11 +24,8 @@ yarn-error.log*
 .env
 .env.local
 .env.development
-.env.development.local
 .env.test
-.env.test.local
 .env.production
-.env.production.local
 
 # Ignore git and IDE files
 .git/
@@ -50,13 +43,9 @@ CHANGELOG*
 # Ignore Docker files
 Dockerfile*
 docker-compose*
-.dockerignore
 
 # Ignore temporary files
 tmp/
 temp/
 *.tmp
 *.temp
-
-# Ignore Vite dev files
-.vite/

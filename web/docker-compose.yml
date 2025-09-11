@@ -1,6 +1,31 @@
 version: '3.8'
 
 services:
+  # Nexium Web Application
+  nexium-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nexium-web-app
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      # Add your web application environment variables here
+      # - DATABASE_URL=${DATABASE_URL}
+      # - BOT_API_URL=${BOT_API_URL}
+    ports:
+      - "5000:5000"
+    volumes:
+      # Mount database if using SQLite
+      - ./data:/app/data
+      # Mount logs directory
+      - ./logs:/app/logs
+    networks:
+      - nexium-web-network
+    depends_on:
+      - uptime-kuma
+
   # Uptime Kuma for local monitoring during development
   uptime-kuma:
     image: louislam/uptime-kuma:1
@@ -12,6 +37,12 @@ services:
     restart: unless-stopped
     environment:
       - UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN=1
+    networks:
+      - nexium-web-network
 
 volumes:
   uptime-kuma:
+
+networks:
+  nexium-web-network:
+    driver: bridge

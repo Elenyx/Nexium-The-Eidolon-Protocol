@@ -1,0 +1,75 @@
+version: '3.8'
+
+# Combined Docker Compose for both Bot and Web services
+# This allows running both applications together with shared networking
+
+services:
+  # Nexium Discord Bot
+  nexium-bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    container_name: nexium-discord-bot
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      # Add your Discord bot environment variables here
+      # - DISCORD_TOKEN=${DISCORD_TOKEN}
+      # - CLIENT_ID=${CLIENT_ID}
+      # - DATABASE_URL=./data/nexium.db
+    volumes:
+      # Shared database volume (if using SQLite)
+      - shared-data:/app/data
+      # Bot logs
+      - ./bot/logs:/app/logs
+    networks:
+      - nexium-network
+    depends_on:
+      - uptime-kuma
+
+  # Nexium Web Application
+  nexium-web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: nexium-web-app
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      # Add your web application environment variables here
+      # - DATABASE_URL=./data/nexium.db
+      # - BOT_API_URL=http://nexium-bot:3000
+    ports:
+      - "5000:5000"
+    volumes:
+      # Shared database volume (if using SQLite)
+      - shared-data:/app/data
+      # Web logs
+      - ./web/logs:/app/logs
+    networks:
+      - nexium-network
+    depends_on:
+      - uptime-kuma
+
+  # Uptime Kuma for monitoring both services
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: nexium-uptime-kuma
+    volumes:
+      - uptime-kuma:/app/data
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    environment:
+      - UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN=1
+    networks:
+      - nexium-network
+
+volumes:
+  uptime-kuma:
+  shared-data:  # Shared volume for database (if using SQLite)
+
+networks:
+  nexium-network:
+    driver: bridge

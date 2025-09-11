@@ -5,6 +5,16 @@ import { randomUUID } from "crypto";
 import { getSystemStatus, getStatusHistory, getUptimeStats } from "./status";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint for monitoring
+  app.get("/health", (req, res) => {
+    res.status(200).json({ 
+      status: "ok", 
+      timestamp: new Date().toISOString(),
+      service: "nexium-web",
+      version: "1.0.0"
+    });
+  });
+
   // Status routes
   app.get("/api/status", getSystemStatus);
   app.get("/api/status/history/:service", getStatusHistory);

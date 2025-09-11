@@ -3,6 +3,7 @@ import { readdirSync } from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
 import { initDatabase } from './database/init.js';
+import { HealthServer } from './utils/health-server.js';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ class NexiumBot {
   private commands: Collection<string, Command>;
   private activities: Array<{ name: string; type: ActivityType }>;
   private activityIndex: number = 0;
+  public healthServer: HealthServer;
 
   constructor() {
     this.client = new Client({
@@ -27,6 +29,7 @@ class NexiumBot {
     });
     
     this.commands = new Collection();
+    this.healthServer = new HealthServer(this.client);
     
     // Activity rotation for the bot status
     this.activities = [
@@ -197,9 +200,12 @@ class NexiumBot {
 
   async start(): Promise<void> {
     try {
-  // Ensure DB schema is created/updated before loading commands that may touch the DB
-  await initDatabase();
-  await this.loadCommands();
+      // Start health server first
+      await this.healthServer.start();
+      
+      // Ensure DB schema is created/updated before loading commands that may touch the DB
+      await initDatabase();
+      await this.loadCommands();
       await this.deployCommands();
       this.setupEventHandlers();
       await this.client.login(process.env.DISCORD_TOKEN);
@@ -215,8 +221,9 @@ const bot = new NexiumBot();
 bot.start().catch(console.error);
 
 // Graceful shutdown
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   console.log('🔄 Received SIGINT, shutting down gracefully...');
+  await bot.healthServer?.stop();
   bot.client?.destroy();
   process.exit(0);
 });

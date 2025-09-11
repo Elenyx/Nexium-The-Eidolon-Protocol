@@ -125,3 +125,6 @@ desktop.ini
 # Test artifacts
 /test-results/
 /bot/test/
+
+# External repositories (cloned for development)
+uptime-kuma/
