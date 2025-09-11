@@ -68,9 +68,9 @@ app.use((req, res, next) => {
   server.listen(port, () => {
     log(`Server running at http://localhost:${port}`);
     
-    // Start uptime monitoring after server is ready
-    // Use environment variable or default to 30 seconds
-    const checkInterval = parseInt(process.env.STATUS_CHECK_INTERVAL || '30000', 10);
-    uptimeMonitor.start(checkInterval);
+    // Temporarily disable uptime monitoring to fix startup issues
+    // TODO: Re-enable after fixing Uptime Kuma integration
+    // const checkInterval = parseInt(process.env.STATUS_CHECK_INTERVAL || '30000', 10);
+    // uptimeMonitor.start(checkInterval);
   });
 })();

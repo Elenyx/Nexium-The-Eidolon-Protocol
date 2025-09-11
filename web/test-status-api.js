@@ -1,5 +1,5 @@
 // Test script for the status API endpoints
-import fetch from 'node-fetch';
+// import fetch from 'node-fetch';
 
 const BASE_URL = 'http://localhost:5000/api';
 

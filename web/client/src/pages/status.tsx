@@ -217,7 +217,11 @@ export default function Status() {
     <div className="container mx-auto px-4 py-8 space-y-8">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h1 className="text-4xl font-bold">Nexium RPG System Status</h1>
+        <h1 className="text-4xl font-bold">
+          <a href="https://status.nexium-rpg.win/status/nexium" target="_blank" rel="noopener noreferrer" className="hover:underline text-inherit">
+            Nexium RPG System Status
+          </a>
+        </h1>
         <p className="text-muted-foreground">
           Real-time status and uptime monitoring for nexium-rpg.win services
         </p>

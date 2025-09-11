@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ExternalLink } from "lucide-react";
 import { useState } from "react";
 
 export function Header() {
@@ -16,13 +16,17 @@ export function Header() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Use Vite env var for the external Uptime Kuma status page
+  const uptimeUrl = (import.meta as any).env?.VITE_UPTIME_KUMA_URL || "/status";
+
   const navItems = [
     { href: "/", label: "Home" },
     { href: "/dashboard", label: "Dashboard" },
     { href: "/characters", label: "Eidolons" },
     { href: "/battles", label: "Battles" },
     { href: "/leaderboard", label: "Leaderboard" },
-    { href: "/status", label: "Status" },
+    // Replace internal /status with the external Uptime Kuma status page URL
+    { href: uptimeUrl, label: "Status" },
   ];
 
   return (
@@ -44,20 +48,37 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`transition-colors ${
-                  location === item.href
-                    ? "text-accent"
-                    : "text-muted-foreground hover:text-accent"
-                }`}
-                data-testid={`nav-link-${item.label.toLowerCase()}`}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isExternal = item.href.startsWith("http");
+              const className = `transition-colors ${
+                location === item.href ? "text-accent" : "text-muted-foreground hover:text-accent"
+              }`;
+
+              return isExternal ? (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={className}
+                  data-testid={`nav-link-${item.label.toLowerCase()}`}
+                >
+                  <span className="inline-flex items-center gap-1">
+                    {item.label}
+                    <ExternalLink className="w-4 h-4 opacity-80" />
+                  </span>
+                </a>
+              ) : (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={className}
+                  data-testid={`nav-link-${item.label.toLowerCase()}`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </div>
 
           {/* User Actions */}
@@ -115,21 +136,41 @@ export function Header() {
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 pb-4 border-t border-border">
             <div className="flex flex-col space-y-2 pt-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`py-2 px-4 rounded transition-colors ${
-                    location === item.href
-                      ? "text-accent bg-accent/10"
-                      : "text-muted-foreground hover:text-accent hover:bg-accent/5"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                  data-testid={`mobile-nav-${item.label.toLowerCase()}`}
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                const isExternal = item.href.startsWith("http");
+                const mobileClass = `py-2 px-4 rounded transition-colors ${
+                  location === item.href ? "text-accent bg-accent/10" : "text-muted-foreground hover:text-accent hover:bg-accent/5"
+                }`;
+
+                return isExternal ? (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={mobileClass}
+                    onClick={() => setMobileMenuOpen(false)}
+                    data-testid={`mobile-nav-${item.label.toLowerCase()}`}
+                  >
+                    <span className="inline-flex items-center justify-between w-full">
+                      <span className="inline-flex items-center gap-2">
+                        {item.label}
+                        <ExternalLink className="w-4 h-4 opacity-80" />
+                      </span>
+                    </span>
+                  </a>
+                ) : (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={mobileClass}
+                    onClick={() => setMobileMenuOpen(false)}
+                    data-testid={`mobile-nav-${item.label.toLowerCase()}`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
