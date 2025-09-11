@@ -17,7 +17,8 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Use Vite env var for the external Uptime Kuma status page
-  const uptimeUrl = (import.meta as any).env?.VITE_UPTIME_KUMA_URL || "/status";
+  // Hardcode as fallback for Railway production builds
+  const uptimeUrl = (import.meta as any).env?.VITE_UPTIME_KUMA_URL || "https://status.nexium-rpg.win/status/nexium";
 
   const navItems = [
     { href: "/", label: "Home" },
